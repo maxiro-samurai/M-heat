@@ -1,0 +1,37 @@
+Traceback (most recent call last):
+  File "D:\ESP\esp-idf\tools\kconfig_new\prepare_kconfig_files.py", line 102, in <module>
+    main()
+  File "D:\ESP\esp-idf\tools\kconfig_new\prepare_kconfig_files.py", line 98, in main
+    _prepare_source_files(env, list_separator)
+  File "D:\ESP\esp-idf\tools\kconfig_new\prepare_kconfig_files.py", line 64, in _prepare_source_files
+    _write_source_file(env_dict['COMPONENT_KCONFIGS'], env_dict['COMPONENT_KCONFIGS_SOURCE_FILE'])
+  File "D:\ESP\esp-idf\tools\kconfig_new\prepare_kconfig_files.py", line 60, in _write_source_file
+    with open(config_file, 'w', encoding='utf-8') as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'D:/椤圭洰瀛︿範/M-heat/Software/hello_world/build/kconfigs.in'
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "d:\ESP\.espressif\python_env\idf5.1_py3.11_env\Lib\site-packages\kconfgen\__main__.py", line 16, in <module>
+    main()
+  File "d:\ESP\.espressif\python_env\idf5.1_py3.11_env\Lib\site-packages\kconfgen\core.py", line 319, in main
+    config = kconfiglib.Kconfig(args.kconfig)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "d:\ESP\.espressif\python_env\idf5.1_py3.11_env\Lib\site-packages\kconfiglib.py", line 947, in __init__
+    self._init(filename, warn, warn_to_stderr, encoding)
+  File "d:\ESP\.espressif\python_env\idf5.1_py3.11_env\Lib\site-packages\kconfiglib.py", line 1085, in _init
+    self._parse_block(None, self.top_node, self.top_node).next = None
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "d:\ESP\.espressif\python_env\idf5.1_py3.11_env\Lib\site-packages\kconfiglib.py", line 2977, in _parse_block
+    raise KconfigError(
+kconfiglib.KconfigError: D:/ESP/esp-idf/Kconfig:261: 'D:/椤圭洰瀛︿範/M-heat/Software/hello_world/build/kconfigs_projbuild.in' not found (in 'source "$COMPONENT_KCONFIGS_PROJBUILD_SOURCE_FILE"'). Check that environment variables are set correctly (e.g. $srctree, which is unset or blank). Also note that unset environment variables expand to the empty string.
+CMake Error at D:/ESP/esp-idf/tools/cmake/kconfig.cmake:176 (message):
+  Failed to run kconfgen
+  (d:/ESP/.espressif/python_env/idf5.1_py3.11_env/Scripts/python.exe;-m;kconfgen;--list-separator=semicolon;--kconfig;D:/ESP/esp-idf/Kconfig;--sdkconfig-rename;D:/ESP/esp-idf/sdkconfig.rename;--config;D:/项目学习/M-heat/Software/hello_world/sdkconfig;--env-file;D:/项目学习/M-heat/Software/hello_world/build/config.env).
+  Error 1
+Call Stack (most recent call first):
+  D:/ESP/esp-idf/tools/cmake/build.cmake:611 (__kconfig_generate_config)
+  D:/ESP/esp-idf/tools/cmake/project.cmake:547 (idf_build_process)
+  CMakeLists.txt:6 (project)
+
+

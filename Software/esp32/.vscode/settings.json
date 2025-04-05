@@ -3,7 +3,7 @@
     "idf.openOcdConfigs": [
         "board/esp32-wrover-kit-3.3v.cfg"
     ],
-    "idf.portWin": "COM4",
+    "idf.portWin": "COM6",
     "idf.flashType": "UART",
     "files.associations": {
         "esp_flash.h": "c",

@@ -1,95 +1,117 @@
-#include <driver/gpio.h>
-#include <driver/spi_master.h>
 #include <esp_log.h>
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 #include <stdio.h>
 #include <string.h>
-
-
 #include "sdkconfig.h"
-#include "u8g2_esp32_hal.h"
-#include "u8g2.h"
-// SDA - GPIO21
-#define PIN_SDA 21
+#include "astra_ui_core.h"
+#include "astra_ui_draw_driver.h"
+#include "astra_ui_item.h"
 
-// SCL - GPIO22
-#define PIN_SCL 22
+uint32_t time_start = 0;
+static int16_t y_logo = 200;
+static int16_t y_version = 200;
+static int16_t y_name = -200;
+static int16_t y_astra = -200;
+static int16_t y_box = 200;
+static int16_t x_board = -200;
+static int16_t y_wire_1 = 200;
+static int16_t y_wire_2 = 200;
 
-static const char* TAG = "ssd1306";
-
-void task_test_SSD1306i2c(void* ignore) {
-  u8g2_esp32_hal_t u8g2_esp32_hal = U8G2_ESP32_HAL_DEFAULT;
-  u8g2_esp32_hal.bus.i2c.sda = PIN_SDA;
-  u8g2_esp32_hal.bus.i2c.scl = PIN_SCL;
-  u8g2_esp32_hal_init(u8g2_esp32_hal);
-
-  u8g2_t u8g2;  // a structure which will contain all the data for one display
-  u8g2_Setup_ssd1306_i2c_128x32_univision_f(
-      &u8g2, U8G2_R0,
-      // u8x8_byte_sw_i2c,
-      u8g2_esp32_i2c_byte_cb,
-      u8g2_esp32_gpio_and_delay_cb);  // init u8g2 structure
-  u8x8_SetI2CAddress(&u8g2.u8x8, 0x78);
-
-  ESP_LOGI(TAG, "u8g2_InitDisplay");
-  u8g2_InitDisplay(&u8g2);  // send init sequence to the display, display is in
-                            // sleep mode after this,
-
-  ESP_LOGI(TAG, "u8g2_SetPowerSave");
-  u8g2_SetPowerSave(&u8g2, 0);  // wake up display
-  ESP_LOGI(TAG, "u8g2_ClearBuffer");
-  u8g2_ClearBuffer(&u8g2);
-  ESP_LOGI(TAG, "u8g2_DrawBox");
-  u8g2_DrawBox(&u8g2, 0, 26, 80, 6);
-  u8g2_DrawFrame(&u8g2, 0, 26, 100, 6);
-
-  ESP_LOGI(TAG, "u8g2_SetFont");
-  u8g2_SetFont(&u8g2, u8g2_font_ncenB14_tr);
-  ESP_LOGI(TAG, "u8g2_DrawStr");
-  u8g2_DrawStr(&u8g2, 2, 17, "Hi nkolban!");
-  ESP_LOGI(TAG, "u8g2_SendBuffer");
-  u8g2_SendBuffer(&u8g2);
-
-  ESP_LOGI(TAG, "All done!");
-
-  vTaskDelete(NULL);
+void test_user_item_init_function()
+{
+  time_start = get_ticks();
 }
+
+void test_user_item_loop_function()
+{
+  uint32_t _time = get_ticks();
+
+  oled_set_draw_color(1);
+  oled_draw_R_box(2, y_box - 1, oled_get_UTF8_width("「astraLauncher」") + 4, oled_get_str_height() + 2, 1);
+  oled_set_draw_color(2);
+  oled_draw_UTF8(4, y_logo - 2, "「astraLauncher」");
+
+  oled_set_draw_color(1);
+  oled_draw_str(106, y_version, "v1.0");
+  oled_draw_UTF8(2, y_name, "by 无理造物.");
+  oled_draw_UTF8(2, y_astra, "由「astra UI Lite」v1.0");
+  oled_draw_UTF8(2, y_astra + 14, "轻量驱动.");
+  oled_draw_frame(x_board, 38, 28, 20);
+  oled_draw_frame(x_board + 2, 40, 24, 10);
+  oled_draw_box(x_board + 2, 40, 2, 10);
+  oled_draw_pixel(x_board + 25, 51);
+  oled_draw_pixel(x_board + 25, 53);
+  oled_draw_pixel(x_board + 25, 55);
+  oled_draw_box(x_board + 21, 51, 3, 2);
+  oled_draw_box(x_board + 21, 54, 3, 2);
+  oled_draw_box(x_board + 17, 53, 3, 3);
+
+  oled_draw_box(x_board + 12, 53, 4, 3);
+  oled_draw_box(x_board + 7, 53, 4, 3);
+  oled_draw_box(x_board + 2, 53, 4, 3);
+
+  oled_draw_box(x_board + 7, y_wire_1, 4, 3);
+  oled_draw_V_line(x_board + 9, y_wire_1 + 3, 3);
+  oled_draw_V_line(x_board + 8, y_wire_1 + 6, 2);
+
+  oled_draw_box(x_board + 12, y_wire_2, 4, 3);
+  oled_draw_V_line(x_board + 14, y_wire_2 + 3, 3);
+  oled_draw_V_line(x_board + 15, y_wire_2 + 6, 2);
+
+  // if (_time - time_start > 300) animation(&y_logo, 15, 94);
+  // if (_time - time_start > 350) animation(&y_version, 14, 88);
+  // if (_time - time_start > 400) animation(&y_box, 2, 92);
+  // if (_time - time_start > 450) animation(&y_astra, 36, 91);
+  // if (_time - time_start > 500) animation(&y_name, 62, 94);
+  // if (_time - time_start > 550) animation(&x_board, 102, 92);
+  // if (_time - time_start > 620) animation(&y_wire_1, 56, 86);
+  // if (_time - time_start > 1400 && _time - time_start < 1600) oled_draw_box(x_board + 5, 42, 19, 6);
+  // if (_time - time_start > 1800 && _time - time_start < 1900) oled_draw_box(x_board + 5, 42, 19, 6);
+  // if (_time - time_start > 2200) oled_draw_box(x_board + 5, 42, 19, 6);
+  // if (_time - time_start > 2400) animation(&y_wire_2, 56, 86);
+}
+
+void test_user_item_exit_function()
+{
+  time_start = 0;
+  y_logo = 200;
+  y_version = 200;
+  y_name = -200;
+  y_astra = -200;
+  y_box = 200;
+  x_board = -200;
+  y_wire_1 = 200;
+  y_wire_2 = 200;
+}
+
+
+void my_test_task(void *arg) {
+    while (1) {
+      
+      
+      astra_ui_widget_core();
+      astra_ui_main_core();
+      test_user_item_loop_function();
+      vTaskDelay(1 / portTICK_PERIOD_MS);
+    }
+}
+
+
+
 
 void app_main(void) {
   
-  u8g2_esp32_hal_t u8g2_esp32_hal = U8G2_ESP32_HAL_DEFAULT;
-  u8g2_esp32_hal.bus.i2c.sda = PIN_SDA;
-  u8g2_esp32_hal.bus.i2c.scl = PIN_SCL;
-  u8g2_esp32_hal_init(u8g2_esp32_hal);
+  astra_ui_driver_init(); //初始化I2C驱动
 
-  u8g2_t u8g2;  // a structure which will contain all the data for one display
-  u8g2_Setup_ssd1306_i2c_128x32_univision_f(
-      &u8g2, U8G2_R0,
-      // u8x8_byte_sw_i2c,
-      u8g2_esp32_i2c_byte_cb,
-      u8g2_esp32_gpio_and_delay_cb);  // init u8g2 structure
-  u8x8_SetI2CAddress(&u8g2.u8x8, 0x78);
+  astra_init_core(); //初始化UI核心
+  
+  // BaseType_t xReturned = xTaskCreate(my_test_task, "my_test_task", 4096, NULL, 5, NULL);
 
-  ESP_LOGI(TAG, "u8g2_InitDisplay");
-  u8g2_InitDisplay(&u8g2);  // send init sequence to the display, display is in
-                            // sleep mode after this,
-
-  ESP_LOGI(TAG, "u8g2_SetPowerSave");
-  u8g2_SetPowerSave(&u8g2, 0);  // wake up display
-  ESP_LOGI(TAG, "u8g2_ClearBuffer");
-  u8g2_ClearBuffer(&u8g2);
-  ESP_LOGI(TAG, "u8g2_DrawBox");
-  u8g2_DrawBox(&u8g2, 0, 26, 80, 6);
-  u8g2_DrawFrame(&u8g2, 0, 26, 100, 6);
-
-  ESP_LOGI(TAG, "u8g2_SetFont");
-  u8g2_SetFont(&u8g2, u8g2_font_ncenB14_tr);
-  ESP_LOGI(TAG, "u8g2_DrawStr");
-  u8g2_DrawStr(&u8g2, 2, 17, "Hi nkolban!");
-  ESP_LOGI(TAG, "u8g2_SendBuffer");
-  u8g2_SendBuffer(&u8g2);
-
-  ESP_LOGI(TAG, "All done!");
+  // if(xReturned == pdPASS) {
+  //   ESP_LOGI("Task", "Task created successfully");
+  // } else {
+  //   ESP_LOGE("Task", "Failed to create task");
+  // }
 
 }

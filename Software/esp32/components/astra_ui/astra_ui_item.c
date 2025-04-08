@@ -7,9 +7,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
-
+#include "esp_log.h" // 添加日志支持
 #include "astra_ui_core.h"
-
+#define MAX_CHILDREN 32 // 根据实际需求定义最大子项数
 void astra_set_font(void *_font)
 {
   if (_font != astra_font) oled_set_font(_font);
@@ -96,6 +96,7 @@ astra_list_item_t *astra_get_root_list()
     memset(_astra_list_root_item, 0, sizeof(astra_list_item_t));
     _astra_list_root_item->type = list_item;
     _astra_list_root_item->content = "root";
+    ESP_LOGE("UI", "ListItem root created");
   }
   return _astra_list_root_item;
 }
@@ -151,32 +152,68 @@ astra_selector_t *astra_get_selector()
   return &astra_selector;
 }
 
-bool astra_bind_item_to_selector(astra_list_item_t *_item)
-{
-  if (_item == NULL) return false;
+bool astra_bind_item_to_selector(astra_list_item_t *_item) {
+  // 检查 item 和 parent 是否为 NULL
+  if (_item == NULL || _item->parent == NULL) {
+    ESP_LOGE("UI", "Item or parent is NULL");
+    return false;
+  }
 
-  //找item在父节点中的序号
+  // // 检查 child_list_item 数组是否有效
+  // if (_item->parent->child_list_item == NULL) {
+  //   ESP_LOGE("UI", "Child list is NULL");
+  //   return false;
+  // }
+
+  // 遍历子项列表（添加越界保护）
   uint8_t _temp_index = 0;
-  for (uint8_t i = 0; i < _item->parent->child_num; i++)
-  {
-    if (_item->parent->child_list_item[i] == _item)
-    {
+  for (uint8_t i = 0; i < _item->parent->child_num && i < MAX_CHILDREN; i++) {
+    if (_item->parent->child_list_item[i] == _item) {
       _temp_index = i;
       break;
     }
   }
 
-  //坐标在refresh内部更新
-  if (astra_selector.selected_item == NULL)
-  {
-    astra_selector.y_selector = 2 * SCREEN_HEIGHT;  //给个初始坐标做动画
+  // 初始化 selector 的默认状态
+  if (astra_selector.selected_item == NULL) {
+    astra_selector.y_selector = 2 * SCREEN_HEIGHT;
     astra_selector.h_selector = 160;
+    astra_selector.selected_index = 0;
+    astra_selector.selected_item = NULL;
   }
+
   astra_selector.selected_index = _temp_index;
   astra_selector.selected_item = _item;
 
   return true;
 }
+
+// bool astra_bind_item_to_selector(astra_list_item_t *_item)
+// {
+//   if (_item == NULL) return false;
+
+//   //找item在父节点中的序号
+//   uint8_t _temp_index = 0;
+//   for (uint8_t i = 0; i < _item->parent->child_num; i++)
+//   {
+//     if (_item->parent->child_list_item[i] == _item)
+//     {
+//       _temp_index = i;
+//       break;
+//     }
+//   }
+
+//   //坐标在refresh内部更新
+//   if (astra_selector.selected_item == NULL)
+//   {
+//     astra_selector.y_selector = 2 * SCREEN_HEIGHT;  //给个初始坐标做动画
+//     astra_selector.h_selector = 160;
+//   }
+//   astra_selector.selected_index = _temp_index;
+//   astra_selector.selected_item = _item;
+
+//   return true;
+// }
 
 void astra_selector_go_next_item()
 {

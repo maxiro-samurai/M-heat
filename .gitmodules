@@ -1,6 +1,6 @@
-[submodule "Software/esp32/component/u8g2-hal-esp-idf"]
-	path = Software/esp32/component/u8g2-hal-esp-idf
+[submodule "Software/esp32/components/u8g2-hal-esp-idf"]
+	path = Software/esp32/components/u8g2-hal-esp-idf
 	url = https://github.com/mkfrey/u8g2-hal-esp-idf.git
-[submodule "Software/esp32/component/u8g2"]
-	path = Software/esp32/component/u8g2
+[submodule "Software/esp32/components/u8g2"]
+	path = Software/esp32/components/u8g2
 	url = https://github.com/olikraus/u8g2.git

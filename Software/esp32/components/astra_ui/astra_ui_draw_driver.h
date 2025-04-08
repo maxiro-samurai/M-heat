@@ -17,47 +17,42 @@
 
 
 
-
+extern u8g2_t u8g2;
 
 /* 此处修改oled绘制函数 */
-// extern u8g2_t u8g2;
-#define SSD1306_ADDR 0x3C
-#define I2C_MASTER_SCL_IO           22      /*!< GPIO number used for I2C master clock */
-#define I2C_MASTER_SDA_IO           21 
-#define I2C_MASTER_FREQ_HZ          400000 
-#define I2C_MASTER_NUM              0  
 #define OLED_HEIGHT 64
 #define OLED_WIDTH 128
 
-#define get_ticks() ____
-#define delay(ms) ____
-#define oled_set_font(font) ____
-#define oled_draw_str(x, y, str) ____
-#define oled_draw_UTF8(x, y, str) ____
-#define oled_get_str_width(str) ____
-#define oled_get_UTF8_width(str) ____
-#define oled_get_str_height() ____
-#define oled_draw_pixel(x, y) ____
-#define oled_draw_circle(x, y, r) ____
-#define oled_draw_R_box(x, y, w, h, r) ____
-#define oled_draw_box(x, y, w, h) ____
-#define oled_draw_frame(x, y, w, h) ____
-#define oled_draw_R_frame(x, y, w, h, r) ____
-#define oled_draw_H_line(x, y, l) ____
-#define oled_draw_V_line(x, y, h) ____
-#define oled_draw_line(x1, y1, x2, y2) ____
-#define oled_draw_H_dotted_line(x, y, l) ____
-#define oled_draw_V_dotted_line(x, y, h) ____
-#define oled_draw_bMP(x, y, w, h, bitMap) ____
-#define oled_set_draw_color(color) ____
-#define oled_set_font_mode(mode) ____
-#define oled_set_font_direction(dir) ____
-#define oled_draw_pixel(x, y) ____
-#define oled_clear_buffer() ____
-#define oled_send_buffer() ____
-#define oled_send_area_buffer(x, y, w, h) ____
+#define get_ticks() launcher_get_tick_ms()
+#define delay(ms) vTaskDelay(ms/portTICK_PERIOD_MS)
+#define oled_set_font(font) u8g2_SetFont(&u8g2, font)
+#define oled_draw_str(x, y, str) u8g2_DrawStr(&u8g2, x, y, str)
+#define oled_draw_UTF8(x, y, str) u8g2_DrawUTF8(&u8g2, x, y, str)
+#define oled_get_str_width(str) u8g2_GetStrWidth(&u8g2, str)
+#define oled_get_UTF8_width(str) u8g2_GetUTF8Width(&u8g2, str)
+#define oled_get_str_height() u8g2_GetMaxCharHeight(&u8g2)
+#define oled_draw_pixel(x, y) u8g2_DrawPixel(&u8g2, x, y)
+#define oled_draw_circle(x, y, r) u8g2_DrawCircle(&u8g2, x, y, r, U8G2_DRAW_ALL)
+#define oled_draw_R_box(x, y, w, h, r) u8g2_DrawRBox(&u8g2, x, y, w, h, r)
+#define oled_draw_box(x, y, w, h) u8g2_DrawBox(&u8g2, x, y, w, h)
+#define oled_draw_frame(x, y, w, h) u8g2_DrawFrame(&u8g2, x, y, w, h)
+#define oled_draw_R_frame(x, y, w, h, r) u8g2_DrawRFrame(&u8g2, x, y, w, h, r)
+#define oled_draw_H_line(x, y, l) u8g2_DrawHLine(&u8g2, x, y, l)
+#define oled_draw_V_line(x, y, h) u8g2_DrawVLine(&u8g2, x, y, h)
+#define oled_draw_line(x1, y1, x2, y2) u8g2_DrawLine(&u8g2, x1, y1, x2, y2)
+#define oled_draw_H_dotted_line(x, y, l) u8g2_DrawHDottedLine(&u8g2, x, y, l)
+#define oled_draw_V_dotted_line(x, y, h) u8g2_DrawVDottedLine(&u8g2, x, y, h)
+#define oled_draw_bMP(x, y, w, h, bitMap) u8g2_DrawBMP(&u8g2, x, y, w, h, bitMap)
+#define oled_set_draw_color(color) u8g2_SetDrawColor(&u8g2, color)
+#define oled_set_font_mode(mode) u8g2_SetFontMode(&u8g2, mode)
+#define oled_set_font_direction(dir) u8g2_SetFontDirection(&u8g2, dir)
+#define oled_draw_pixel(x, y) u8g2_DrawPixel(&u8g2, x, y)
+#define oled_clear_buffer() u8g2_ClearBuffer(&u8g2)
+#define oled_send_buffer() u8g2_SendBuffer(&u8g2)
+#define oled_send_area_buffer(x, y, w, h) u8g2_UpdateDisplayArea(&u8g2, x, y, w, h)
 /* 此处修改oled绘制函数 */
 
 extern void astra_ui_driver_init();
-
+extern void esp32_i2c_hal_init();
+extern uint32_t launcher_get_tick_ms();
 #endif //FUCKCLION_CORE_SRC_ASTRA_UI_LITE_DRAW_DRIVER_H_

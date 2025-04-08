@@ -96,7 +96,6 @@ astra_list_item_t *astra_get_root_list()
     memset(_astra_list_root_item, 0, sizeof(astra_list_item_t));
     _astra_list_root_item->type = list_item;
     _astra_list_root_item->content = "root";
-    ESP_LOGE("UI", "ListItem root created");
   }
   return _astra_list_root_item;
 }
@@ -154,9 +153,12 @@ astra_selector_t *astra_get_selector()
 
 bool astra_bind_item_to_selector(astra_list_item_t *_item) {
   // 检查 item 和 parent 是否为 NULL
-  if (_item == NULL || _item->parent == NULL) {
-    ESP_LOGE("UI", "Item or parent is NULL");
-    return false;
+  if (_item == NULL)  return false;
+  uint8_t _temp_index = 0;// 遍历子项列表（添加越界保护）
+  if (_item->parent == NULL) //根节点父节点指针时NULL
+  {
+    ESP_LOGI("UI","parent list is NULL");
+    _temp_index = 0;    //
   }
 
   // // 检查 child_list_item 数组是否有效
@@ -165,15 +167,15 @@ bool astra_bind_item_to_selector(astra_list_item_t *_item) {
   //   return false;
   // }
 
-  // 遍历子项列表（添加越界保护）
-  uint8_t _temp_index = 0;
+  
+  else{
   for (uint8_t i = 0; i < _item->parent->child_num && i < MAX_CHILDREN; i++) {
-    if (_item->parent->child_list_item[i] == _item) {
-      _temp_index = i;
-      break;
+        if (_item->parent->child_list_item[i] == _item) {
+        _temp_index = i;
+        break;
+      }
     }
   }
-
   // 初始化 selector 的默认状态
   if (astra_selector.selected_item == NULL) {
     astra_selector.y_selector = 2 * SCREEN_HEIGHT;

@@ -89,11 +89,12 @@ void test_user_item_exit_function()
 void my_test_task(void *arg) {
     while (1) {
       
-      
+      oled_clear_buffer();
       astra_ui_widget_core();
       astra_ui_main_core();
       test_user_item_loop_function();
-      vTaskDelay(1 / portTICK_PERIOD_MS);
+      oled_send_buffer();
+      vTaskDelay(100 / portTICK_PERIOD_MS);
     }
 }
 
@@ -105,7 +106,8 @@ void app_main(void) {
   astra_ui_driver_init(); //初始化I2C驱动
 
   astra_init_core(); //初始化UI核心
-  
+  // in_astra = 1;
+  // astra_list_item_t* test_list_item = astra_new_list_item("你好世界");
   // BaseType_t xReturned = xTaskCreate(my_test_task, "my_test_task", 4096, NULL, 5, NULL);
 
   // if(xReturned == pdPASS) {
@@ -113,5 +115,17 @@ void app_main(void) {
   // } else {
   //   ESP_LOGE("Task", "Failed to create task");
   // }
+
+  while(1)
+  {
+    oled_clear_buffer();
+    oled_set_font(u8g2_font_6x10_mf);
+    oled_set_draw_color(1);
+
+    oled_set_draw_color(0);
+    oled_draw_box(0,0,128,16);
+    
+    oled_send_buffer();
+  }
 
 }

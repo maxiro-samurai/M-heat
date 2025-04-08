@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include "astra_ui_drawer.h"
 #include <tgmath.h>
-
+#include <esp_log.h>
 bool in_astra = false;
 
 /**
@@ -122,8 +122,16 @@ void astra_init_core()
 
 void astra_refresh_list_item_position()
 {
-  for (uint8_t i = 0; i < astra_selector.selected_item->parent->child_num; i++)
-    astra_animation(&astra_selector.selected_item->parent->child_list_item[i]->y_list_item, astra_selector.selected_item->parent->child_list_item[i]->y_list_item_trg, 84);
+  if (astra_selector.selected_item->parent ==NULL)
+  {
+    ESP_LOGI("UI","parent list is NULL"); //一开始时根节点 父节点为NULL
+    astra_animation(&astra_selector.selected_item->y_list_item, astra_selector.selected_item->y_list_item,84);
+  }
+
+  else{
+    for (uint8_t i = 0; i < astra_selector.selected_item->parent->child_num; i++) //
+      astra_animation(&astra_selector.selected_item->parent->child_list_item[i]->y_list_item, astra_selector.selected_item->parent->child_list_item[i]->y_list_item_trg, 84);
+  }
 }
 
 void astra_refresh_selector_position()

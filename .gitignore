@@ -1,8 +1,8 @@
-Software/esp32/.vscode
-Software/esp32/.devcontainer
-Software/esp32/build
+Software/esp32/.vscode/
+Software/esp32/.devcontainer/
+Software/esp32/build/
 
-sdkconfig
-sdkconfig.old
-sdkconfig.defaults
-sdkconfig.ci
+Software/esp32/sdkconfig
+Software/esp32/sdkconfig.old
+Software/esp32/sdkconfig.defaults
+Software/esp32/sdkconfig.ci

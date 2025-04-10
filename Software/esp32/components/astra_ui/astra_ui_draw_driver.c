@@ -52,26 +52,19 @@ void u8g2_init(u8g2_t *u8g2)
       u8g2_esp32_gpio_and_delay_cb);  // init u8g2 structure
       u8x8_SetI2CAddress(&u8g2->u8x8, 0x78);
 
-    ESP_LOGI(TAG, "u8g2_InitDisplay");
-    u8g2_InitDisplay(u8g2);  // send init sequence to the display, display is in
-                              // sleep mode after this,
+      ESP_LOGI(TAG, "u8g2_InitDisplay");
+      u8g2_InitDisplay(u8g2);  // send init sequence to the display, display is in
+                                // sleep mode after this,
+  
+      ESP_LOGI(TAG, "u8g2_SetPowerSave");
+      u8g2_SetPowerSave(u8g2, 0);  // wake up display
+      ESP_LOGI(TAG, "u8g2_ClearBuffer");
+      u8g2_ClearBuffer(u8g2);
 
-    ESP_LOGI(TAG, "u8g2_SetPowerSave");
-    u8g2_SetPowerSave(u8g2, 0);  // wake up display
-    ESP_LOGI(TAG, "u8g2_ClearBuffer");
-    u8g2_ClearBuffer(u8g2);
-    ESP_LOGI(TAG, "u8g2_DrawBox");
-    u8g2_DrawBox(u8g2, 0, 26, 80, 6);
-    u8g2_DrawFrame(u8g2, 0, 26, 100, 6);
-
-    ESP_LOGI(TAG, "u8g2_SetFont");
-    u8g2_SetFont(u8g2, u8g2_font_ncenB14_tr);
-    ESP_LOGI(TAG, "u8g2_DrawStr");
-    u8g2_DrawStr(u8g2, 2, 17, "Hi nkolban!");
-    ESP_LOGI(TAG, "u8g2_SendBuffer");
-    u8g2_SendBuffer(u8g2);
-
-    ESP_LOGI(TAG, "All done!");
+      ESP_LOGI(TAG, "u8g2_SendBuffer");
+      u8g2_SendBuffer(u8g2);
+  
+      ESP_LOGI(TAG, "All done!");
 }
 
 /* 此处自行编写oled及图形库初始化函数所需的函数 */

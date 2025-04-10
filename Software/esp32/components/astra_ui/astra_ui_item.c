@@ -9,7 +9,7 @@
 #include <sys/types.h>
 #include "esp_log.h" // 添加日志支持
 #include "astra_ui_core.h"
-#define MAX_CHILDREN 32 // 根据实际需求定义最大子项数
+ // 根据实际需求定义最大子项数
 void astra_set_font(void *_font)
 {
   if (_font != astra_font) oled_set_font(_font);
@@ -169,7 +169,7 @@ bool astra_bind_item_to_selector(astra_list_item_t *_item) {
 
   
   else{
-  for (uint8_t i = 0; i < _item->parent->child_num && i < MAX_CHILDREN; i++) {
+  for (uint8_t i = 0; i < _item->parent->child_num ; i++) {
         if (_item->parent->child_list_item[i] == _item) {
         _temp_index = i;
         break;

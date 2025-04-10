@@ -8,7 +8,6 @@
 #include <stdint.h>
 #define ALLOW_EXIT_ASTRA_UI_BY_USER 1 //允许用户在最浅层级退出astra ui lite
 extern bool in_astra;
-extern const uint8_t u8g2_font_my_chinese;
 extern const uint8_t u8g2_font_atari;
 extern void ad_astra();
 

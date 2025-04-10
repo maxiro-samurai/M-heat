@@ -245,7 +245,15 @@ void astra_draw_list_appearance()
 
   //滑块
   static float _length_each_part = 0;
-  _length_each_part = ceilf((SCREEN_HEIGHT - 10.0f) / (float) astra_selector.selected_item->parent->child_num);
+
+  if (astra_selector.selected_item->parent == NULL)
+  {
+    _length_each_part = ceilf((SCREEN_HEIGHT - 10.0f) / (float) astra_selector.selected_item->child_num); // 如果父节点为NULL 选择根节点
+  
+  }
+  else
+    _length_each_part = ceilf((SCREEN_HEIGHT - 10.0f) / (float) astra_selector.selected_item->parent->child_num);
+  // _length_each_part = ceilf((SCREEN_HEIGHT - 10.0f) / (float) astra_selector.selected_item->parent->child_num);
   oled_draw_box(OLED_WIDTH - 4, 5 + astra_selector.selected_index * _length_each_part, 3, _length_each_part);
 
   //滑块内横线

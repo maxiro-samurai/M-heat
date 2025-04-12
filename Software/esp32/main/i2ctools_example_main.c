@@ -107,15 +107,25 @@ void app_main(void) {
 
   rotary_encoder_init();
 
-  // astra_ui_driver_init(); //初始化I2C驱动
-  // // u8g2_SetFont(&u8g2, u8g2_font_my_chinese);
-  // astra_init_core(); //初始化UI核心
-  // in_astra = 1;
-  // astra_list_item_t* test_list_item = astra_new_list_item("关于ESP32");
-  // astra_push_item_to_list(astra_get_root_list(), test_list_item);
-  // BaseType_t xReturned = xTaskCreate(my_test_task, "my_test_task", 4096, NULL, 5, NULL);
-  BaseType_t xReturned = xTaskCreate(encoder_task, "encoder_task", 4096, NULL, 5, NULL);
+  astra_ui_driver_init(); //初始化I2C驱动
+  // u8g2_SetFont(&u8g2, u8g2_font_my_chinese);
+  astra_init_core(); //初始化UI核心
+  in_astra = 1;
+  astra_list_item_t* test_list_item = astra_new_list_item("关于ESP32");
+
+  astra_list_item_t* test_list_item2 = astra_new_list_item("关于ESP32-DevKitC");
+  astra_list_item_t* test_list_item3 = astra_new_list_item("关于ESP32-DevKitC-V4");
+  astra_push_item_to_list(astra_get_root_list(), test_list_item);
+  astra_push_item_to_list(astra_get_root_list(), test_list_item2);
+  astra_push_item_to_list(astra_get_root_list(), test_list_item3);
+  BaseType_t xReturned = xTaskCreate(my_test_task, "my_test_task", 4096, NULL, 5, NULL);
   if(xReturned == pdPASS) {
+    ESP_LOGI("Task", "Task created successfully");
+  } else {
+    ESP_LOGE("Task", "Failed to create task");
+  }
+  BaseType_t xReturned2 = xTaskCreate(encoder_task, "encoder_task", 4096, &rotatry_encoder, 4, NULL);
+  if(xReturned2 == pdPASS) {
     ESP_LOGI("Task", "Task created successfully");
   } else {
     ESP_LOGE("Task", "Failed to create task");

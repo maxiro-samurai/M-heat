@@ -1,4 +1,4 @@
 idf_component_register(SRCS "i2ctools_example_main.c"
                        INCLUDE_DIRS "."
                        
-                       PRIV_REQUIRES astra_ui rotary_encoder)
+                       PRIV_REQUIRES astra_ui rotary_encoder beep adc)

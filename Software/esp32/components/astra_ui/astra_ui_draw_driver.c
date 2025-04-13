@@ -45,7 +45,7 @@ void esp32_i2c_hal_init()
 
 void u8g2_init(u8g2_t *u8g2)
 {
-    u8g2_Setup_ssd1306_i2c_128x32_univision_f(
+  u8g2_Setup_ssd1306_i2c_128x64_noname_f(
       u8g2, U8G2_R0,
       // u8x8_byte_sw_i2c,
       u8g2_esp32_i2c_byte_cb,

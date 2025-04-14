@@ -82,7 +82,7 @@ void app_main(void) {
     ESP_LOGE("Task", "Failed to create task");
   }
 
-  BaseType_t xReturned3 = xTaskCreate(adc_continuous_read_task, "adc_continuous_read_task", 4096, NULL, 4, NULL);
+  BaseType_t xReturned3 = xTaskCreate(adc_oneshot_read_task, "adc_oneshot_read_task", 4096, NULL, 4, NULL);
 // BaseType_t xReturned3 = xTaskCreate(beep_task, "beep_task", 2048, NULL, 4, NULL);
 //   if(xReturned3 == pdPASS) {
 //     ESP_LOGI("Task", "Task created successfully");

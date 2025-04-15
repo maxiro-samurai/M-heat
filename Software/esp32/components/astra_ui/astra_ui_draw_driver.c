@@ -74,6 +74,7 @@ void astra_ui_driver_init()
 {
     esp32_i2c_hal_init();
     u8g2_init(&u8g2);
+    oled_set_font(u8g2_font_my_chinese);
 }
 
 /* 此处自行修改内部函数名 */

@@ -59,7 +59,7 @@ typedef struct adc_continuous_item
 
 }adc_continuous_item;
 
-
+adc_continuous_item ADC;
 void adc_continuous_read_task(void *arg);
 void adc_oneshot_read_task(void *arg);
 

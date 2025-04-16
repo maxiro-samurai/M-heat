@@ -8,6 +8,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include <stdio.h>
+#include "adc.h"
 
 #define pgm_read_byte(addr)   (*(const unsigned char *)(addr))
 

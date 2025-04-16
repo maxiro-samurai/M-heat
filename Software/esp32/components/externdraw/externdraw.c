@@ -88,27 +88,36 @@ void DrawStatusBar(bool color)
     oled_draw_frame(0, 53, 103, 11);
     //条
     // if (TipTemperature <= TipMaxTemp)
-    oled_draw_box(0, 53, map(26, 0, 300, 5, 98), 11);
+    oled_draw_box(0, 53, map(58, 0, 300, 5, 98), 11);
 
     //功率条
     oled_draw_frame(104, 53, 23, 11);
-    oled_draw_box(104, 53, map(100, 0, 255, 0, 23), 11);
+    oled_draw_box(104, 53, map(255, 0, 255, 0, 23), 11);
 
     oled_draw_H_line(117, 51, 11);
     oled_draw_pixel(103, 52);
     oled_draw_pixel(127, 52);
 
     //////////////进入反色////////////////////////////////
+    // 进入反色模式
     oled_set_draw_color(2);
 
-    //画指示针
+    // 画指示针
     Draw_Slow_Bitmap(map(250, 0, 300, 5, 98) - 4, 54, PositioningCursor, 8, 8);
-    
-    sprintf(buff, "%.1f", 250.1);
-    oled_draw_str(2, 53+font_height+1, buff); //温度值
 
-    sprintf(buff, "%.1f", 250.1);
-    oled_draw_str(105, 53+font_height+1, buff); //温度值
+    // // 切换回正常颜色模式
+    // oled_set_draw_color(0);
+    
+    // 显示温度值
+    sprintf(buff, "%03d", 26);
+    oled_draw_UTF8(2, 62, buff);
+
+    // 显示功率值
+    sprintf(buff, "%d", 100);
+    oled_draw_UTF8(105, 62, buff);
+
+    // 刷新显示缓冲区
+    oled_send_buffer();
     
 
 

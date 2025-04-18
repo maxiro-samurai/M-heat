@@ -97,29 +97,29 @@ void DrawStatusBar(bool color)
     oled_draw_H_line(117, 51, 11);
     oled_draw_pixel(103, 52);
     oled_draw_pixel(127, 52);
-
-    //////////////进入反色////////////////////////////////
-    // 进入反色模式
-    oled_set_draw_color(2);
-
-    // 画指示针
-    Draw_Slow_Bitmap(map(250, 0, 300, 5, 98) - 4, 54, PositioningCursor, 8, 8);
-
-    // // 切换回正常颜色模式
+     // // 切换回正常颜色模式
     // oled_set_draw_color(0);
-    
+    // oled_set_font(u8g2_font_5x8_tn);
     // 显示温度值
+    oled_set_draw_color(!color);
     sprintf(buff, "%03d", 26);
     oled_draw_UTF8(2, 62, buff);
 
     // 显示功率值
     sprintf(buff, "%d", 100);
     oled_draw_UTF8(105, 62, buff);
+    //////////////进入反色////////////////////////////////
+    // 进入反色模式
+    oled_set_draw_color(2);
+
+    // 画指示针
+    Draw_Slow_Bitmap(map(250, 0, 300, 5, 98) - 4, 54, PositioningCursor, 8, 8);
+    
+   
 
     // 刷新显示缓冲区
-    oled_send_buffer();
     
-
+    
 
 
     // arduboy.setCursor(105, 55); arduboy.print(map(PID_Output, 255, 0, 0, 100)); arduboy.print(F("%")); //功率百分比
@@ -128,6 +128,8 @@ void DrawStatusBar(bool color)
 
 void System_UI(void)
 {
+    if(in_astra) return;
+    
     char temp[20];
     int font_height = oled_get_str_height(); // 获取字体高度
 
@@ -151,9 +153,9 @@ void System_UI(void)
     oled_set_font(u8g2_font_logisoso38_tr);
 
 
-    sprintf(temp,"%.1f", 12.1);
+    sprintf(temp,"%d", ADC.now_temp); //获取温度值
     oled_draw_str(0, 51, temp);
-    oled_set_font(u8g2_font_my_chinese);
+    oled_set_font(u8g2_font_my_chinese); //先显示温度
 
     //右上角运行指示角标
     uint8_t TriangleSize = map(100, 0, 255, 16, 0);
@@ -170,4 +172,79 @@ void System_UI(void)
     oled_set_draw_color(1);
     
     DrawStatusBar(1);
+
+    if (rotatry_encoder.key_state == HOLD ) in_astra= true; //进入设置界面
+    
+
 }   
+
+float temperature_data[SCREEN_WIDTH];  // 温度数据数组
+
+
+// 更新温度数据（左移旧数据，插入新数据到末尾）
+void update_temperature_data(float new_temp) {
+    for (int i = 0; i < SCREEN_WIDTH; i++) {
+        temperature_data[i] = temperature_data[i + 1];
+    }
+    temperature_data[SCREEN_WIDTH - 1] = new_temp;
+  }
+  
+
+
+
+
+/*
+温度曲线绘制函数
+*/
+void temp_plot(void)
+
+{
+    //获取当前颜色
+    uint8_t color = oled_get_draw_color();
+    update_temperature_data(ADC.now_temp); // 更新温度数据
+    oled_set_draw_color(1);//设置颜色为白色
+    // --- 自动计算 Y 轴范围 ---
+    float temp_min = temperature_data[0];
+    float temp_max = temperature_data[0];
+    for (int i = 0; i < SCREEN_WIDTH; i++) {
+        if (temperature_data[i] < temp_min) temp_min = temperature_data[i];
+        if (temperature_data[i] > temp_max) temp_max = temperature_data[i];
+    }
+    // 处理数据全等或范围过小的情况
+    if (temp_max - temp_min < 1.0f) {
+        temp_min -= 0.5f;
+        temp_max += 0.5f;
+    }
+
+     // 绘制坐标系
+    oled_draw_H_line( 0, SCREEN_HEIGHT - 1, SCREEN_WIDTH - 1); // X轴
+    oled_draw_V_line( 0, 0,SCREEN_HEIGHT - 1);                                // Y轴
+      // --- 动态绘制 Y 轴标签 ---
+    u8g2_SetFont(&u8g2, u8g2_font_5x7_tf);
+    char label[16];
+    // 绘制最小值
+    snprintf(label, sizeof(label), "%.0f", temp_min);
+    u8g2_DrawStr(&u8g2, 2, SCREEN_HEIGHT - 5, label);
+    // 绘制最大值
+    snprintf(label, sizeof(label), "%.0f", temp_max);
+    u8g2_DrawStr(&u8g2, 2, 10, label);
+     
+    // --- 映射温度到屏幕 Y 坐标 ---
+    for (int i = 0; i < SCREEN_WIDTH - 1; i++) {
+        int x1 = i;
+        int x2 = i + 1;
+        // 动态计算 Y 坐标
+        int y1 = SCREEN_HEIGHT - 1 - (int)((temperature_data[i] - temp_min) * (SCREEN_HEIGHT - 1) / (temp_max - temp_min));
+        int y2 = SCREEN_HEIGHT - 1 - (int)((temperature_data[i + 1] - temp_min) * (SCREEN_HEIGHT - 1) / (temp_max - temp_min));
+        // 边界保护
+        y1 = (y1 < 0) ? 0 : (y1 >= SCREEN_HEIGHT) ? SCREEN_HEIGHT - 1 : y1;
+        y2 = (y2 < 0) ? 0 : (y2 >= SCREEN_HEIGHT) ? SCREEN_HEIGHT - 1 : y2;
+        u8g2_DrawLine(&u8g2, x1, y1, x2, y2);
+    }
+
+    oled_set_draw_color(2);
+    //几何图形切割
+    oled_draw_box(0, 0, SCREEN_WIDTH-1, SCREEN_HEIGHT-1);
+    oled_set_draw_color(color); //恢复颜色
+    vTaskDelay(1000 / portTICK_PERIOD_MS);//测试时可用，但是实际使用需要定时器
+}

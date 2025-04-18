@@ -5,7 +5,8 @@
  * 该代码使用了FreeRTOS任务和信号量来处理ADC数据的读取和打印。
  * 该代码使用了ESP-IDF框架中的ADC数字接口和其他相关库。
  */
-
+#ifndef ADC_H
+#define ADC_H
 
 #include <math.h>
 #include <string.h>
@@ -42,7 +43,10 @@
 #define temp_error_value 0
 #define temp_max_value 250
 #define tmep_error_mode 1 
-typedef struct adc_continuous_item
+#define TEMP_MIN                 0      // 温度最小值
+#define TEMP_MAX                 300    // 温度最大值
+#define MAX_data_point 
+typedef struct adc_continuous_struct
 {
     
     uint32_t adc_buffer_1[8];
@@ -50,6 +54,7 @@ typedef struct adc_continuous_item
     uint32_t vol_low;
     uint32_t vol_high;
     int8_t adc_error;
+    int16_t set_temp;
     uint16_t now_temp ;
     uint16_t now_temp_high ;
     bool adc_get_temp_flg ;
@@ -59,7 +64,8 @@ typedef struct adc_continuous_item
 
 }adc_continuous_item;
 
-adc_continuous_item ADC;
+extern adc_continuous_item ADC; //ADC数据结构体
 void adc_continuous_read_task(void *arg);
 void adc_oneshot_read_task(void *arg);
 
+#endif

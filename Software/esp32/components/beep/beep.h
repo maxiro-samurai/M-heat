@@ -1,3 +1,5 @@
+#ifndef BEEP_H
+#define BEEP_H
 #include <stdio.h>
 #include "driver/ledc.h"
 #include "esp_err.h"
@@ -22,3 +24,5 @@ typedef struct {
 void beep_init(void);
 void buzzer_set_freq(uint32_t freq, uint32_t duty_percent);
 void play_melody(Tone* notes, size_t num_notes);
+
+#endif // BEEP_H 

@@ -22,10 +22,31 @@ Tone melody[] = {
   {392, 1000}  // G4
 };
 
+bool wifi_enable = false;
+
+void init_temp_plot(void){
+
+  // 初始化温度数据为初始值
+  for (int i = 0; i < SCREEN_WIDTH; i++) {
+    temperature_data[i] = 25.0;
+  }
+
+}
+
+
+void temp_plot_quit(void){
+
+  oled_clear_buffer(); // 清除OLED显示
+
+}
+
 
 
 
 void my_test_task(void *arg) {
+
+  
+
     while (1) {
       
 
@@ -33,11 +54,11 @@ void my_test_task(void *arg) {
       oled_clear_buffer();
       // Draw_Num_Bar(0.5, 0, 1, 0, 0, 128, 64, 1);
       System_UI();
-      // astra_ui_widget_core();
-      // astra_ui_main_core();
+      astra_ui_main_core();
+      astra_ui_widget_core();
       // // test_user_item_loop_function();
       oled_send_buffer();
-      vTaskDelay(100 / portTICK_PERIOD_MS);
+      vTaskDelay(1 / portTICK_PERIOD_MS);
     }
 }
 
@@ -56,37 +77,40 @@ void app_main(void) {
   beep_init();
   astra_ui_driver_init(); //初始化I2C驱动
 
-  // astra_init_core(); //初始化UI核心
-  // in_astra = 1;
-  // astra_list_item_t* test_list_item = astra_new_list_item("关于ESP32");
+  astra_init_core(); //初始化UI核心
+  
+  astra_list_item_t* setting_list_item = astra_new_list_item("Setup");
 
-  // astra_list_item_t* test_list_item2 = astra_new_list_item("test1");
-  // astra_list_item_t* test_list_item3 = astra_new_list_item("test2");
-  // astra_list_item_t* test_list_item4 = astra_new_list_item("test3"); 
-  // astra_list_item_t* test_list_item5 = astra_new_list_item("hello world");
-  // astra_list_item_t* test_list_item6 = astra_new_list_item("test4");
-  // astra_list_item_t* test_list_item7 = astra_new_list_item("test5");
-  // astra_push_item_to_list(astra_get_root_list(), test_list_item);
-  // astra_push_item_to_list(astra_get_root_list(), test_list_item2);
-  // astra_push_item_to_list(astra_get_root_list(), test_list_item3);
-  // astra_push_item_to_list(astra_get_root_list(), test_list_item4);
-  // astra_push_item_to_list(astra_get_root_list(), test_list_item5);
-  // astra_push_item_to_list(astra_get_root_list(), test_list_item6);
-  // astra_push_item_to_list(astra_get_root_list(), test_list_item7);
-  BaseType_t xReturned = xTaskCreate(my_test_task, "my_test_task", 4096, NULL, 5, NULL);
+  astra_list_item_t* wifi_list_item = astra_new_list_item("Wifi");
+  astra_list_item_t* ble_list_item = astra_new_list_item("Bluetooth");
+  astra_list_item_t* temp_control_item = astra_new_list_item("Temperature Control"); 
+  astra_list_item_t* exit_list_item = astra_new_list_item("exit");
+  astra_push_item_to_list(astra_get_root_list(), setting_list_item);
+  astra_push_item_to_list(setting_list_item, wifi_list_item);
+  astra_push_item_to_list(setting_list_item, ble_list_item);
+  astra_push_item_to_list(astra_get_root_list(), temp_control_item);
+  astra_push_item_to_list(astra_get_root_list(), exit_list_item);
+  astra_push_item_to_list(wifi_list_item, astra_new_switch_item("Enable wifi",&wifi_enable ));
+  astra_push_item_to_list(temp_control_item, astra_new_slider_item("Temperature", &ADC.set_temp,5,10,300));
+
+
+  astra_push_item_to_list(temp_control_item,astra_new_user_item("Temp plot",init_temp_plot,temp_plot,temp_plot_quit));
+
+
+  BaseType_t xReturned = xTaskCreate(my_test_task, "my_test_task", 4096+2048, NULL, 5, NULL);
   if(xReturned == pdPASS) {
     ESP_LOGI("Task", "Task created successfully");
   } else {
     ESP_LOGE("Task", "Failed to create task");
   }
-  // BaseType_t xReturned2 = xTaskCreate(encoder_task, "encoder_task", 2048, &rotatry_encoder, 4, NULL);
-  // if(xReturned2 == pdPASS) {
-  //   ESP_LOGI("Task", "Task created successfully");
-  // } else {
-  //   ESP_LOGE("Task", "Failed to create task");
-  // }
+  BaseType_t xReturned2 = xTaskCreate(encoder_task, "encoder_task", 2048, &rotatry_encoder, 4, NULL);
+  if(xReturned2 == pdPASS) {
+    ESP_LOGI("Task", "Task created successfully");
+  } else {
+    ESP_LOGE("Task", "Failed to create task");
+  }
 
-  // BaseType_t xReturned3 = xTaskCreate(adc_oneshot_read_task, "adc_oneshot_read_task", 4096, NULL, 4, NULL);
+  BaseType_t xReturned3 = xTaskCreate(adc_oneshot_read_task, "adc_oneshot_read_task", 2048, NULL, 4, NULL);
 // BaseType_t xReturned3 = xTaskCreate(beep_task, "beep_task", 2048, NULL, 4, NULL);
 //   if(xReturned3 == pdPASS) {
 //     ESP_LOGI("Task", "Task created successfully");

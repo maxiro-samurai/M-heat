@@ -13,6 +13,7 @@ adc_continuous_item ADC = {
     .adc_error = 0,
     .now_temp = 0,
     .now_temp_high = 0,
+    .set_temp = 0,
     .adc_get_temp_flg = false,
     .hotbed_max_temp = 0,
     .adc_max_temp = 250,

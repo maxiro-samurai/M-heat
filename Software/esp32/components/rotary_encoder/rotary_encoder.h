@@ -1,3 +1,5 @@
+#ifndef ROTARY_ENCODER_H
+#define ROTARY_ENCODER_H
 #include "sdkconfig.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -7,7 +9,7 @@
 #include "driver/gpio.h"
 #include "esp_sleep.h"
 #include "astra_ui_item.h"
-
+#include "astra_ui_core.h"
 #define EXAMPLE_PCNT_HIGH_LIMIT 100
 #define EXAMPLE_PCNT_LOW_LIMIT  -100
 
@@ -30,7 +32,7 @@ typedef enum{
 
 typedef struct rotary_encoder_item_t
 {
-    void *select_item;  //当前选中的selecter
+    bool en_torary;  //当前选中的selecter
     ButtonState key_state;
     EncoderState encoder_state;
     uint32_t last_tick; //上次按下时间
@@ -41,3 +43,5 @@ typedef struct rotary_encoder_item_t
 extern rotary_encoder_item_t rotatry_encoder; //编码器对象
 void rotary_encoder_init(void);
 void encoder_task(void *arg);
+
+#endif

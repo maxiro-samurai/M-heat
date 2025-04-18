@@ -12,7 +12,7 @@ QueueHandle_t buton_queue = NULL;
 pcnt_unit_handle_t pcnt_unit = NULL;
 
 rotary_encoder_item_t rotatry_encoder = {
-    .select_item = NULL,
+    .en_torary = false, //禁用旋转编码器
     .key_state = IDLE,
     .encoder_state = IDLE_ENCODER,
     .last_tick = 0,
@@ -146,7 +146,7 @@ void encoder_state_detection(rotary_encoder_item_t *encoder) {
     // static ButtonState button_state = IDLE; // 按键状态
 
     // int16_t encoder_val = 0; 
-    
+
     pcnt_unit_get_count(pcnt_unit,&encoder->encoder_value); //读取编码器值
     int GPIO_LEVEL ; //读取GPIO电平
     uint32_t current_tick = xTaskGetTickCount() * portTICK_PERIOD_MS;  //获取当前时间
@@ -156,17 +156,17 @@ void encoder_state_detection(rotary_encoder_item_t *encoder) {
     
     // 处理旋转方向
     if (encoder->encoder_value != encoder->last_encoder_value) {
-        if (encoder->encoder_value > encoder->last_encoder_value + 50) {
-            // ESP_LOGI(TAG, "编码器左旋转");
+        if (encoder->encoder_value > encoder->last_encoder_value + 3) {
+            ESP_LOGI(TAG, "编码器左旋转,值: %d", encoder->encoder_value);
             encoder->encoder_state = LEFT;
-        } else {
-            // ESP_LOGI(TAG, "编码器右旋转");
+        } else if(encoder->encoder_value < encoder->last_encoder_value - 3) {
+            ESP_LOGI(TAG, "编码器右旋转,值: %d", encoder->encoder_value);
             encoder->encoder_state = RIGHT;
         }
         encoder->last_encoder_value = encoder->encoder_value; 
 
     } else {
-        // ESP_LOGI(TAG, "编码器未动作");
+        ESP_LOGI(TAG, "编码器未动作");
         encoder->encoder_state = IDLE_ENCODER; // 编码器未动作
     }
    
@@ -190,7 +190,7 @@ void encoder_state_detection(rotary_encoder_item_t *encoder) {
 
                     encoder->last_tick = current_tick; // 更新按下时间
                 } else {
-                    encoder->key_state = IDLE; // 按键释放
+                    encoder->key_state = RELEASED; // 按键释放
                 }
 
             } 
@@ -209,7 +209,7 @@ void encoder_state_detection(rotary_encoder_item_t *encoder) {
             break;
 
         case RELEASED:
-            if (current_tick - encoder->last_tick > pdMS_TO_TICKS(100)) { // 按键释放
+            if (GPIO_LEVEL == 1) { // 按键释放
                 // if (GPIO_LEVEL == 1 )
 
                 encoder->key_state = IDLE; // 重新进入空闲状态
@@ -230,6 +230,7 @@ void encoder_state_detection(rotary_encoder_item_t *encoder) {
 */
 void encoder_select_item(rotary_encoder_item_t *encoder){
 
+    if (!in_astra) return; 
     if (encoder->encoder_state == LEFT) {
         ESP_LOGI(TAG, "选择上一个item");
         astra_selector_go_prev_item(); //选择上一个item
@@ -242,8 +243,9 @@ void encoder_select_item(rotary_encoder_item_t *encoder){
         ESP_LOGI(TAG, "确认选择的item");
         astra_selector_jump_to_selected_item(); //确认选择的item
     } else if (encoder->key_state == HOLD) {
-        ESP_LOGI(TAG, "长按确认选择的item");
+        ESP_LOGI(TAG, "长按退出选择的item");
         astra_selector_exit_current_item(); //长按确认选择的item
+        encoder->key_state = IDLE;
     }
     
 

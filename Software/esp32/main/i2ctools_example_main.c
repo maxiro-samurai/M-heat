@@ -91,7 +91,7 @@ void app_main(void) {
   astra_push_item_to_list(astra_get_root_list(), temp_control_item);
   astra_push_item_to_list(astra_get_root_list(), exit_list_item);
   astra_push_item_to_list(wifi_list_item, astra_new_switch_item("Enable wifi",&wifi_enable ));
-  astra_push_item_to_list(temp_control_item, astra_new_slider_item("Temperature", &ADC.set_temp,5,10,300));
+  astra_push_item_to_list(temp_control_item, astra_new_slider_item("Temperature", &ADC.set_temp,10,10,300));
 
 
   astra_push_item_to_list(temp_control_item,astra_new_user_item("Temp plot",init_temp_plot,temp_plot,temp_plot_quit));

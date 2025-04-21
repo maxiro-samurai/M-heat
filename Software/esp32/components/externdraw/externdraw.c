@@ -13,7 +13,7 @@ uint8_t* C_table[] = {c1, c2, c3, Lightning, c5, c6, c7};
 // };
 
 
-
+static const char *TAG = "example";
 
 
 long map(long x, long in_min, long in_max, long out_min, long out_max) {
@@ -131,7 +131,7 @@ void System_UI(void)
     if(in_astra) return;
     
     char temp[20];
-    char _msg[50];
+    char _msg[20];
     int font_height = oled_get_str_height(); // 获取字体高度
 
     oled_draw_UTF8(0, font_height-1, "M-heat");
@@ -178,8 +178,10 @@ void System_UI(void)
     if (rotatry_encoder.key_state ==HOLD){
 
         if (rotatry_encoder.hold_tick < 2000){
-            sprintf(_msg, "Keep holding %.2fs", (2000 - rotatry_encoder.hold_tick) / 1000.0f);
-            astra_push_info_bar(_msg, 2000);
+
+            // sprintf(_msg, "2s");
+            // ESP_LOGI(TAG, "Hold time: %s", _msg);
+            astra_push_info_bar("Keep holding 2s", 2000);
             
         }
         else if (rotatry_encoder.hold_tick>=2000){

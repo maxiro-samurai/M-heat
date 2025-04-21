@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include "adc.h"
 #include "rotary_encoder.h"
+#include "esp_log.h"
 #define pgm_read_byte(addr)   (*(const unsigned char *)(addr))
 
 #

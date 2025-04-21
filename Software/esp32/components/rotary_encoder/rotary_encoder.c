@@ -18,6 +18,8 @@ rotary_encoder_item_t rotatry_encoder = {
     .last_tick = 0,
     .last_encoder_value = 0,
     .encoder_value = 0,
+    .hold_tick = 0,
+    .last_key_state = IDLE,
 };
 // rotary_encoder_item_t rotatry_encoder = {};
 
@@ -178,6 +180,7 @@ void encoder_state_detection(rotary_encoder_item_t *encoder) {
             if (GPIO_LEVEL == 0) { // 按键按下
                 encoder->key_state = PRESSED;
                 encoder->last_tick = current_tick; // 记录按下时间
+                encoder->last_key_state = IDLE; // 记录上次按键状态
                 ESP_LOGI(TAG, "按键按下");
             }
             break;
@@ -191,8 +194,9 @@ void encoder_state_detection(rotary_encoder_item_t *encoder) {
                     encoder->last_tick = current_tick; // 更新按下时间
                 } else {
                     encoder->key_state = RELEASED; // 按键释放
+                
                 }
-
+                encoder->last_key_state = PRESSED; // 记录上次按键状态
             } 
             break;
         
@@ -202,10 +206,12 @@ void encoder_state_detection(rotary_encoder_item_t *encoder) {
                 encoder->last_tick = current_tick; // 记录按下时间
             } else {
                 if (current_tick - encoder->last_tick > pdMS_TO_TICKS(100)) { // 按键保持超过200ms
-                    ESP_LOGI(TAG, "按键保持超过100ms");
-                    encoder->last_tick = current_tick; // 记录按下时间
+                    ESP_LOGI(TAG, "按键保持%lums",current_tick - encoder->last_tick);
+                    // encoder->last_tick = current_tick; // 记录按下时间
+                    encoder->hold_tick = current_tick - encoder->last_tick; // 记录按下时间 
                 }
-            }
+            } 
+            encoder->last_key_state = HOLD; // 记录上次按键状态
             break;
 
         case RELEASED:
@@ -214,6 +220,7 @@ void encoder_state_detection(rotary_encoder_item_t *encoder) {
 
                 encoder->key_state = IDLE; // 重新进入空闲状态
                 ESP_LOGI(TAG, "按键释放");
+                encoder->last_key_state = RELEASED; // 记录上次按键状态
             } 
             break;
             
@@ -239,12 +246,17 @@ void encoder_select_item(rotary_encoder_item_t *encoder){
         astra_selector_go_next_item(); //选择下一个item
     } 
     
-    if (encoder->key_state == RELEASED) {
+    if (encoder->key_state == RELEASED && encoder->last_key_state == PRESSED) {
         ESP_LOGI(TAG, "确认选择的item");
         astra_selector_jump_to_selected_item(); //确认选择的item
-    } else if (encoder->key_state == HOLD) {
-        ESP_LOGI(TAG, "长按退出选择的item");
-        astra_selector_exit_current_item(); //长按确认选择的item
+    } else if (encoder->key_state == RELEASED && encoder->last_key_state == HOLD) {
+        if ( encoder->hold_tick < 2000) {
+           
+        
+            ESP_LOGI(TAG, "长按退出选择的item");
+            astra_selector_exit_current_item(); //长按确认选择的item
+            
+        }
         encoder->key_state = IDLE;
     }
     

@@ -131,6 +131,7 @@ void System_UI(void)
     if(in_astra) return;
     
     char temp[20];
+    char _msg[50];
     int font_height = oled_get_str_height(); // 获取字体高度
 
     oled_draw_UTF8(0, font_height-1, "M-heat");
@@ -173,8 +174,22 @@ void System_UI(void)
     
     DrawStatusBar(1);
 
-    if (rotatry_encoder.key_state == HOLD ) in_astra= true; //进入设置界面
-    
+   
+    if (rotatry_encoder.key_state ==HOLD){
+
+        if (rotatry_encoder.hold_tick < 2000){
+            sprintf(_msg, "Keep holding %.2fs", (2000 - rotatry_encoder.hold_tick) / 1000.0f);
+            astra_push_info_bar(_msg, 2000);
+            
+        }
+        else if (rotatry_encoder.hold_tick>=2000){
+            astra_push_info_bar("Enter menu! :p", 2000);
+            in_astra = true;
+
+        }
+        
+}
+
 
 }   
 
@@ -246,5 +261,5 @@ void temp_plot(void)
     //几何图形切割
     oled_draw_box(0, 0, SCREEN_WIDTH-1, SCREEN_HEIGHT-1);
     oled_set_draw_color(color); //恢复颜色
-    vTaskDelay(1000 / portTICK_PERIOD_MS);//测试时可用，但是实际使用需要定时器
+    vTaskDelay(500 / portTICK_PERIOD_MS);//测试时可用，但是实际使用需要定时器
 }

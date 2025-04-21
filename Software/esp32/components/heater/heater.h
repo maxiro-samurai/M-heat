@@ -23,6 +23,7 @@ typedef struct {
     float prev_error;   // 上一次误差
     float output_min;   // 输出最小值（限幅）
     float output_max;   // 输出最大值（限幅）
+    uint32_t Sample_time; // 采样时间（ms）
 } pid_controller_t;
 
 

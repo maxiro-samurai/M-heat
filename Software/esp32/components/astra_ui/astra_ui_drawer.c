@@ -161,14 +161,16 @@ void astra_draw_info_bar()
                   (int16_t)astra_info_bar.w_info_bar, INFO_BAR_HEIGHT + 4, 3);
   //向上移动四个像素 同时向下多画四个像素 只用下半部分圆角
 
+  oled_set_draw_color(0); 
+  oled_draw_UTF8(_x_info_bar + 6,
+    (int16_t)(astra_info_bar.y_info_bar + oled_get_str_height() - 2),
+    astra_info_bar.content);
   oled_set_draw_color(2);
   oled_draw_H_line(_x_info_bar + 2, _y_info_bar_2 - 2, (int16_t)(astra_info_bar.w_info_bar - 4));
   oled_draw_pixel(_x_info_bar + 1, _y_info_bar_2 - 3);
   oled_draw_pixel(_x_info_bar - 2, _y_info_bar_2 - 3);
 
-  oled_draw_UTF8(_x_info_bar + 6,
-                 (int16_t)(astra_info_bar.y_info_bar + oled_get_str_height() - 2),
-                 astra_info_bar.content);
+  
 }
 
 void astra_draw_pop_up()
@@ -202,15 +204,16 @@ void astra_draw_pop_up()
   oled_draw_R_box(_x_pop_up - 2, (int16_t)astra_pop_up.y_pop_up,
                   (int16_t)(astra_pop_up.w_pop_up + 4),
                   POP_UP_HEIGHT, 3);
-
+  oled_set_draw_color(0);
+  oled_draw_UTF8(_x_pop_up + 3,
+                    (int16_t)(astra_pop_up.y_pop_up + oled_get_str_height() + 1),
+                    astra_pop_up.content);
   oled_set_draw_color(2);
   oled_draw_H_line(_x_pop_up, _y_pop_up - 2, (int16_t)astra_pop_up.w_pop_up);
   oled_draw_pixel(_x_pop_up - 1, _y_pop_up - 3);
   oled_draw_pixel((int16_t)(OLED_WIDTH/2 + astra_pop_up.w_pop_up/2), _y_pop_up - 3);
 
-  oled_draw_UTF8(_x_pop_up + 3,
-                 (int16_t)(astra_pop_up.y_pop_up + oled_get_str_height() + 1),
-                 astra_pop_up.content);
+  
 }
 
 void astra_draw_list_appearance()

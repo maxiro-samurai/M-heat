@@ -38,4 +38,6 @@
 
     ![image](https://github.com/maxiro-samurai/picx-images-hosting/raw/master/image.86tu7igduf.webp)
 
-    
+* 2025/4/22   想到后面调PID每次都需要重新下载烧录代码很麻烦，所以想到用野火的串口助手，里面有调试PID的功能。但是需要满足野火通信的协议，参考[踏雪Vernon](https://github.com/taxue-vernon/firetool_PID_driver_esp)大佬的代码把功能移植到本项目中。当前面临问题：只有串口0能用，串口0还是下载程序的串口，软件把下载串口占用导致无法下载程序，我在改进后的板子上在EN引脚上添加了一个复位按键，理论上来说可以下载程序。担心是多余的，自动下载电路中有硬件流控，能使ESP32自动复位进入bootloader。软件部分还需要增加保存PID、温度、时间等一些温度的设置功能，这就需要非易失存储器保存数据，比如eeprom。这里使用ESP32中的NVS来存储，详情看[ESP32 非易失性存储器NVS](https://docs.espressif.com/projects/esp-idf/zh_CN/v5.4.1/esp32s3/api-reference/storage/nvs_flash.html#id2)。
+
+

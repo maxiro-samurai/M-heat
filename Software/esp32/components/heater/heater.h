@@ -24,10 +24,17 @@ typedef struct {
     float output_min;   // 输出最小值（限幅）
     float output_max;   // 输出最大值（限幅）
     uint32_t Sample_time; // 采样时间（ms）
+    float target_value; // 目标值
 } pid_controller_t;
 
 
-
+void heater_init(void);
+void heater_output(uint16_t pwm);
+void pid_set_param(pid_controller_t *pid, float Kp, float Ki, float Kd);
+void pid_set_sample_time(pid_controller_t *pid, uint32_t Sample_time);
+void pid_set_output_limits(pid_controller_t *pid, float output_min, float output_max);
+uint16_t pid_calculate(pid_controller_t *pid, float setpoint, float measured_value);
+void pid_set_target_value(pid_controller_t *pid, float target_value);
 
 
 

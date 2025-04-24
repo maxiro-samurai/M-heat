@@ -209,13 +209,15 @@ void update_temperature_data(float new_temp) {
 
 
 
-
+extern QueueHandle_t queue;
 /*
 温度曲线绘制函数
 */
 void temp_plot(void)
 
 {
+    uint64_t alarm_value = 0;
+   
     //获取当前颜色
     uint8_t color = oled_get_draw_color();
     update_temperature_data(ADC.now_temp); // 更新温度数据
@@ -245,23 +247,25 @@ void temp_plot(void)
     // 绘制最大值
     snprintf(label, sizeof(label), "%.0f", temp_max);
     u8g2_DrawStr(&u8g2, 2, 10, label);
-     
-    // --- 映射温度到屏幕 Y 坐标 ---
-    for (int i = 0; i < SCREEN_WIDTH - 1; i++) {
-        int x1 = i;
-        int x2 = i + 1;
-        // 动态计算 Y 坐标
-        int y1 = SCREEN_HEIGHT - 1 - (int)((temperature_data[i] - temp_min) * (SCREEN_HEIGHT - 1) / (temp_max - temp_min));
-        int y2 = SCREEN_HEIGHT - 1 - (int)((temperature_data[i + 1] - temp_min) * (SCREEN_HEIGHT - 1) / (temp_max - temp_min));
-        // 边界保护
-        y1 = (y1 < 0) ? 0 : (y1 >= SCREEN_HEIGHT) ? SCREEN_HEIGHT - 1 : y1;
-        y2 = (y2 < 0) ? 0 : (y2 >= SCREEN_HEIGHT) ? SCREEN_HEIGHT - 1 : y2;
-        u8g2_DrawLine(&u8g2, x1, y1, x2, y2);
-    }
+    //定时器事件处理，触发后才接受数据
+    if (xQueueReceive(queue, &alarm_value, portMAX_DELAY)) {// 接收定时器事件 
+        // --- 映射温度到屏幕 Y 坐标 ---
+        for (int i = 0; i < SCREEN_WIDTH - 1; i++) {
+            int x1 = i;
+            int x2 = i + 1;
+            // 动态计算 Y 坐标
+            int y1 = SCREEN_HEIGHT - 1 - (int)((temperature_data[i] - temp_min) * (SCREEN_HEIGHT - 1) / (temp_max - temp_min));
+            int y2 = SCREEN_HEIGHT - 1 - (int)((temperature_data[i + 1] - temp_min) * (SCREEN_HEIGHT - 1) / (temp_max - temp_min));
+            // 边界保护
+            y1 = (y1 < 0) ? 0 : (y1 >= SCREEN_HEIGHT) ? SCREEN_HEIGHT - 1 : y1;
+            y2 = (y2 < 0) ? 0 : (y2 >= SCREEN_HEIGHT) ? SCREEN_HEIGHT - 1 : y2;
+            u8g2_DrawLine(&u8g2, x1, y1, x2, y2);
+        }
 
+        
+    }
     oled_set_draw_color(2);
     //几何图形切割
     oled_draw_box(0, 0, SCREEN_WIDTH-1, SCREEN_HEIGHT-1);
     oled_set_draw_color(color); //恢复颜色
-    vTaskDelay(500 / portTICK_PERIOD_MS);//测试时可用，但是实际使用需要定时器
 }

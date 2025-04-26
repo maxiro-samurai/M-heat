@@ -1,17 +1,17 @@
 #include "externdraw.h"
 
-
+uint8_t TempCTRL_Status = TEMP_STATUS_OFF;
 uint8_t* C_table[] = {c1, c2, c3, Lightning, c5, c6, c7};
-// char* TempCTRL_Status_Mes[] = {
-//     "错误",
-//     "停机",
-//     "休眠",
-//     "提温",
-//     "正常",
-//     "加热",
-//     "维持",
-// };
-
+char* TempCTRL_Status_Mes[] = {
+    "错误",
+    "停机",
+    "休眠",
+    "提温",
+    "正常",
+    "加热",
+    "维持",
+};
+extern bool ble_state;
 
 static const char *TAG = "example";
 
@@ -87,6 +87,8 @@ void DrawStatusBar(bool color)
     //框
     oled_draw_frame(0, 53, 103, 11);
     //条
+    if (ADC.now_temp <= TEMP_MAX)
+        oled_draw_box(0, y, w, h)
     // if (TipTemperature <= TipMaxTemp)
     oled_draw_box(0, 53, map(58, 0, 300, 5, 98), 11);
 
@@ -133,35 +135,51 @@ void System_UI(void)
     char temp[20];
     char _msg[20];
     int font_height = oled_get_str_height(); // 获取字体高度
-
+    //M-HEAT项目名称
     oled_draw_UTF8(0, font_height-1, "M-heat");
-    //测试图标绘制函数
-    // for (int i=0;i<7;i++){
-    //     oled_clear_buffer();
-    //     Draw_Slow_Bitmap(74, 37, C_table[i], 14, 14);
-    //     oled_send_buffer();
-    //     vTaskDelay(500 / portTICK_PERIOD_MS);
-    // }
-    //显示中文状态信息
-    // oled_set_font(u8g2_font_my_chinese);
-    // oled_draw_UTF8(91, 40, "关于");
+  
+
+    // 温度控制图标
+    Draw_Slow_Bitmap(74, 37, C_table[TempCTRL_Status], 14, 14);
+    
+   
+    //图标下显示中文
+    oled_set_font(u8g2_font_my_chinese);
+    oled_draw_UTF8(91, 40, TempCTRL_Status_Mes[TempCTRL_Status]);
+    // 欠压报警
+
+    /*待完善*/
+
 
     //蓝牙显示
-    Draw_Slow_Bitmap(92, 25, IMG_BLE_S, 9, 11);
+    if (ble_state) Draw_Slow_Bitmap(92, 25, IMG_BLE_S, 9, 11);
+    
 
 
     //主页面显示温度
     oled_set_font(u8g2_font_logisoso38_tr);
-
-
-    sprintf(temp,"%d", ADC.now_temp); //获取温度值
-    oled_draw_str(0, 51, temp);
-    oled_set_font(u8g2_font_my_chinese); //先显示温度
-
-    //右上角运行指示角标
-    uint8_t TriangleSize = map(100, 0, 255, 16, 0);
     
-    oled_draw_triangle((119 - 12) + TriangleSize, 12, 125, 12, 125, (18 + 12) - TriangleSize);
+    if (TempCTRL_Status == TEMP_STATUS_ERROR){
+        if((get_ticks()/250) % 2) oled_draw_str(0, 51, "---");
+
+    }
+    else{
+        sprintf(temp,"%d", ADC.now_temp); //获取温度值
+        oled_draw_str(0, 51, temp);
+    }
+    oled_set_font(u8g2_font_my_chinese); //先显示温度
+    //右上角运行指示角标
+
+    if(output_pwm >0 && PWM_state)
+    {
+
+        uint8_t TriangleSize = map(output_pwm, 0, 8191, 16, 0);
+    
+        oled_draw_triangle((119 - 12) + TriangleSize, 12, 125, 12, 125, (18 + 12) - TriangleSize);
+
+
+    }
+    
 
 
     /////////////////////////////////////绘制遮罩层//////////////////////////////////////////////
@@ -209,14 +227,12 @@ void update_temperature_data(float new_temp) {
 
 
 
-extern QueueHandle_t queue;
 /*
 温度曲线绘制函数
 */
 void temp_plot(void)
 
 {
-    uint64_t alarm_value = 0;
    
     //获取当前颜色
     uint8_t color = oled_get_draw_color();
@@ -247,25 +263,24 @@ void temp_plot(void)
     // 绘制最大值
     snprintf(label, sizeof(label), "%.0f", temp_max);
     u8g2_DrawStr(&u8g2, 2, 10, label);
-    //定时器事件处理，触发后才接受数据
-    if (xQueueReceive(queue, &alarm_value, portMAX_DELAY)) {// 接收定时器事件 
-        // --- 映射温度到屏幕 Y 坐标 ---
-        for (int i = 0; i < SCREEN_WIDTH - 1; i++) {
-            int x1 = i;
-            int x2 = i + 1;
-            // 动态计算 Y 坐标
-            int y1 = SCREEN_HEIGHT - 1 - (int)((temperature_data[i] - temp_min) * (SCREEN_HEIGHT - 1) / (temp_max - temp_min));
-            int y2 = SCREEN_HEIGHT - 1 - (int)((temperature_data[i + 1] - temp_min) * (SCREEN_HEIGHT - 1) / (temp_max - temp_min));
-            // 边界保护
-            y1 = (y1 < 0) ? 0 : (y1 >= SCREEN_HEIGHT) ? SCREEN_HEIGHT - 1 : y1;
-            y2 = (y2 < 0) ? 0 : (y2 >= SCREEN_HEIGHT) ? SCREEN_HEIGHT - 1 : y2;
-            u8g2_DrawLine(&u8g2, x1, y1, x2, y2);
-        }
-
-        
+    
+    // --- 映射温度到屏幕 Y 坐标 ---
+    for (int i = 0; i < SCREEN_WIDTH - 1; i++) {
+        int x1 = i;
+        int x2 = i + 1;
+        // 动态计算 Y 坐标
+        int y1 = SCREEN_HEIGHT - 1 - (int)((temperature_data[i] - temp_min) * (SCREEN_HEIGHT - 1) / (temp_max - temp_min));
+        int y2 = SCREEN_HEIGHT - 1 - (int)((temperature_data[i + 1] - temp_min) * (SCREEN_HEIGHT - 1) / (temp_max - temp_min));
+        // 边界保护
+        y1 = (y1 < 0) ? 0 : (y1 >= SCREEN_HEIGHT) ? SCREEN_HEIGHT - 1 : y1;
+        y2 = (y2 < 0) ? 0 : (y2 >= SCREEN_HEIGHT) ? SCREEN_HEIGHT - 1 : y2;
+        u8g2_DrawLine(&u8g2, x1, y1, x2, y2);
     }
+
+    
     oled_set_draw_color(2);
     //几何图形切割
     oled_draw_box(0, 0, SCREEN_WIDTH-1, SCREEN_HEIGHT-1);
     oled_set_draw_color(color); //恢复颜色
+    vTaskDelay(200 / portTICK_PERIOD_MS); // 延时 0.2 秒
 }

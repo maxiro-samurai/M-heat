@@ -159,16 +159,16 @@ void encoder_state_detection(rotary_encoder_item_t *encoder) {
     // 处理旋转方向
     if (encoder->encoder_value != encoder->last_encoder_value) {
         if (encoder->encoder_value > encoder->last_encoder_value + 3) {
-            ESP_LOGI(TAG, "编码器左旋转,值: %d", encoder->encoder_value);
+            // ESP_LOGI(TAG, "编码器左旋转,值: %d", encoder->encoder_value);
             encoder->encoder_state = LEFT;
         } else if(encoder->encoder_value < encoder->last_encoder_value - 3) {
-            ESP_LOGI(TAG, "编码器右旋转,值: %d", encoder->encoder_value);
+            // ESP_LOGI(TAG, "编码器右旋转,值: %d", encoder->encoder_value);
             encoder->encoder_state = RIGHT;
         }
         encoder->last_encoder_value = encoder->encoder_value; 
 
     } else {
-        ESP_LOGI(TAG, "编码器未动作");
+        // ESP_LOGI(TAG, "编码器未动作");
         encoder->encoder_state = IDLE_ENCODER; // 编码器未动作
     }
    
@@ -181,7 +181,7 @@ void encoder_state_detection(rotary_encoder_item_t *encoder) {
                 encoder->key_state = PRESSED;
                 encoder->last_tick = current_tick; // 记录按下时间
                 encoder->last_key_state = IDLE; // 记录上次按键状态
-                ESP_LOGI(TAG, "按键按下");
+                // ESP_LOGI(TAG, "按键按下");
             }
             break;
         
@@ -189,7 +189,7 @@ void encoder_state_detection(rotary_encoder_item_t *encoder) {
             if (current_tick - encoder->last_tick > pdMS_TO_TICKS(50)) { // 按键保持超过200ms
                 if (GPIO_LEVEL == 0){
                     encoder->key_state = HOLD;
-                    ESP_LOGI(TAG, "按键保持超过50ms");
+                    // ESP_LOGI(TAG, "按键保持超过50ms");
 
                     encoder->last_tick = current_tick; // 更新按下时间
                 } else {
@@ -206,7 +206,7 @@ void encoder_state_detection(rotary_encoder_item_t *encoder) {
                 encoder->last_tick = current_tick; // 记录按下时间
             } else {
                 if (current_tick - encoder->last_tick > pdMS_TO_TICKS(100)) { // 按键保持超过200ms
-                    ESP_LOGI(TAG, "按键保持%lums",current_tick - encoder->last_tick);
+                    // ESP_LOGI(TAG, "按键保持%lums",current_tick - encoder->last_tick);
                     // encoder->last_tick = current_tick; // 记录按下时间
                     encoder->hold_tick = current_tick - encoder->last_tick; // 记录按下时间 
                 }
@@ -219,7 +219,7 @@ void encoder_state_detection(rotary_encoder_item_t *encoder) {
                 // if (GPIO_LEVEL == 1 )
 
                 encoder->key_state = IDLE; // 重新进入空闲状态
-                ESP_LOGI(TAG, "按键释放");
+                // ESP_LOGI(TAG, "按键释放");
                 encoder->last_key_state = RELEASED; // 记录上次按键状态
             } 
             break;

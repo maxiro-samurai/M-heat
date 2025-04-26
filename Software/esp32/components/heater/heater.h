@@ -1,11 +1,15 @@
 #ifndef heater_H
 #define heater_H
 
+#include "esp_log.h"
 #include <stdio.h>
 #include "driver/ledc.h"
 #include "esp_err.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "timer.h"
+#include "adc.h"
+#include "firetool_PID_adaptor.h"
 
 #define HEATER_TIMER              LEDC_TIMER_1
 #define HEATER_OUTPUT_IO          (13) // Define the output GPIO
@@ -35,8 +39,11 @@ void pid_set_sample_time(pid_controller_t *pid, uint32_t Sample_time);
 void pid_set_output_limits(pid_controller_t *pid, float output_min, float output_max);
 uint16_t pid_calculate(pid_controller_t *pid, float setpoint, float measured_value);
 void pid_set_target_value(pid_controller_t *pid, float target_value);
+void Temperature_Control_task(void);
 
-
+extern bool en_pid;
+extern uint16_t output_pwm;
+extern bool PWM_state;
 
 
 #endif

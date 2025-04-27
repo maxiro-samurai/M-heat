@@ -111,8 +111,8 @@ static void adc_get_sys_vol(adc_oneshot_unit_handle_t adc1_handle,adc_cali_handl
     adc_oneshot_read(adc1_handle, ADC_CHANNEL_5, &adc_temp); //存储ADC值
 
     ESP_ERROR_CHECK(adc_cali_raw_to_voltage(adc1_cali_chan0_handle, adc_temp, &vol_temp));
-
-    system_vol = (float)(vol_temp*20/1000);
+    // printf("%lu",vol_temp);
+    system_vol = (float)(vol_temp*20.0f/1000.0f);
     
 }
 // static void adc_get_value(adc_continuous_item *adc) {

@@ -154,7 +154,7 @@ void System_UI(void)
                     ESP_LOGI(TAG, "vol: %.2f", system_vol);
                     // Disp.printf("%.1fV", Get_MainPowerVoltage());
                 }
-
+                PWMOutput_Lock = true;
     }
     //图标下显示中文
     oled_set_font(u8g2_font_my_chinese);

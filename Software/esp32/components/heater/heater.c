@@ -3,7 +3,7 @@
 uint8_t sample_time_list[3]={200,100,50};//采样时间列表
 gptimer_handle_t gptimer = NULL;  
 QueueHandle_t queue = NULL;
-uint8_t PWMOutput_Lock = false;
+bool PWMOutput_Lock = false;
 
 static const char *TAG = "PID";
 bool PWM_state = true;

@@ -84,7 +84,6 @@ void app_main(void) {
 
   astra_init_core(); //初始化UI核心
   heater_init(); //初始化加热器
-  heater_output(2000);
   nvs_init(); //初始化NVS
   astra_list_item_t* setting_list_item = astra_new_list_item("Setup");
 

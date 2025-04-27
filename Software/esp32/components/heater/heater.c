@@ -6,7 +6,7 @@ QueueHandle_t queue = NULL;
 uint8_t PWMOutput_Lock = false;
 
 static const char *TAG = "PID";
-bool PWM_state = false;
+bool PWM_state = true;
 
 /**
  * * @brief 定时器中断回调函数
@@ -288,17 +288,17 @@ void Temperature_Control_task(void){
     /*初始化PID控制器，设置初始参数 */
     pid_controller_t pid;
     heater_init();
-    pid_init(&pid, 0.1, 0.0, 0.0, 0, 8191, 200); // 初始化PID控制器
+    pid_init(&pid, 1, 0.0, 0.0, 0, 8191, 200); // 初始化PID控制器
     float Temperature_gap ;
-    /**调用初始化函数之前必须先调用设置回调函数函数！！！！！！**/
-    fta_set_received_start_cb(&fireToolPidAdaptor, fta_start_callback);
-    fta_set_received_stop_cb(&fireToolPidAdaptor, fta_stop_callback);
-    fta_set_received_reset_cb(&fireToolPidAdaptor, fta_reset_callback);
-    fta_set_received_targetValue(&fireToolPidAdaptor, fta_targetValue_callback);
-    fta_set_received_periodValue(&fireToolPidAdaptor, fta_periodValue_callback);
-    fta_set_received_PID(&fireToolPidAdaptor, fta_PID_callback);
+    // /**调用初始化函数之前必须先调用设置回调函数函数！！！！！！**/
+    // fta_set_received_start_cb(&fireToolPidAdaptor, fta_start_callback);
+    // fta_set_received_stop_cb(&fireToolPidAdaptor, fta_stop_callback);
+    // fta_set_received_reset_cb(&fireToolPidAdaptor, fta_reset_callback);
+    // fta_set_received_targetValue(&fireToolPidAdaptor, fta_targetValue_callback);
+    // fta_set_received_periodValue(&fireToolPidAdaptor, fta_periodValue_callback);
+    // fta_set_received_PID(&fireToolPidAdaptor, fta_PID_callback);
 
-    fta_init(&fireToolPidAdaptor, 115200, 18, 17, UART_NUM_0, 1024);
+    // fta_init(&fireToolPidAdaptor, 115200, 18, 17, UART_NUM_0, 1024);
     void *pid_event;
     while (1)
     {   
@@ -315,17 +315,17 @@ void Temperature_Control_task(void){
             //如果处于PID模式
             if (en_pid)
             {
-                // output_pwm =  pid_calculate(&pid,ADC.set_temp,ADC.now_temp);
-                // ESP_LOGI(TAG, "PID输出值: %d", output_pwm);
-                // heater_output(output_pwm);
+                output_pwm =  pid_calculate(&pid,ADC.set_temp,ADC.now_temp);
+                ESP_LOGI(TAG, "PID输出值: %d", output_pwm);
+                heater_output(output_pwm);
 
-                fta_send_targetValue(&fireToolPidAdaptor, 1, ADC.set_temp);
+                // fta_send_targetValue(&fireToolPidAdaptor, 1, ADC.set_temp);
   
-                fta_send_periodValue(&fireToolPidAdaptor, 1, pid.Sample_time);
+                // fta_send_periodValue(&fireToolPidAdaptor, 1, pid.Sample_time);
             
-                fta_send_PID(&fireToolPidAdaptor, 1, pid.Kp, pid.Ki, pid.Kd);
+                // fta_send_PID(&fireToolPidAdaptor, 1, pid.Kp, pid.Ki, pid.Kd);
 
-                fta_send_actualValue(&fireToolPidAdaptor, 1, ADC.now_temp);
+                // fta_send_actualValue(&fireToolPidAdaptor, 1, ADC.now_temp);
 
 
 

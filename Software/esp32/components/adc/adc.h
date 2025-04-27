@@ -44,7 +44,7 @@
 #define temp_max_value 250
 #define tmep_error_mode 1 
 #define TEMP_MIN                 0      // 温度最小值
-#define TEMP_MAX                 300    // 温度最大值
+#define TEMP_MAX                 250    // 温度最大值
 #define MAX_data_point 
 typedef struct adc_continuous_struct
 {
@@ -63,7 +63,7 @@ typedef struct adc_continuous_struct
     bool adc_max_temp_auto_flg ;
 
 }adc_continuous_item;
-
+extern float system_vol;
 extern adc_continuous_item ADC; //ADC数据结构体
 void adc_continuous_read_task(void *arg);
 void adc_oneshot_read_task(void *arg);

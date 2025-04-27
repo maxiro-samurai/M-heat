@@ -88,9 +88,9 @@ void DrawStatusBar(bool color)
     oled_draw_frame(0, 53, 103, 11);
     //条
     if (ADC.now_temp <= TEMP_MAX)
-        oled_draw_box(0, y, w, h)
+        oled_draw_box(0, 53, map(ADC.now_temp, TEMP_MIN, TEMP_MAX, 5, 98), 11);
     // if (TipTemperature <= TipMaxTemp)
-    oled_draw_box(0, 53, map(58, 0, 300, 5, 98), 11);
+    
 
     //功率条
     oled_draw_frame(104, 53, 23, 11);
@@ -142,7 +142,20 @@ void System_UI(void)
     // 温度控制图标
     Draw_Slow_Bitmap(74, 37, C_table[TempCTRL_Status], 14, 14);
     
-   
+    if (system_vol <19){
+
+        if ((get_ticks() / 1000) % 2)
+                {
+                    //欠压告警图标
+                    Draw_Slow_Bitmap(74, 21, Battery_NoPower, 14, 14);
+                } else
+                {
+                    //主电源电压
+                    ESP_LOGI(TAG, "vol: %.2f", system_vol);
+                    // Disp.printf("%.1fV", Get_MainPowerVoltage());
+                }
+
+    }
     //图标下显示中文
     oled_set_font(u8g2_font_my_chinese);
     oled_draw_UTF8(91, 40, TempCTRL_Status_Mes[TempCTRL_Status]);

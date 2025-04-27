@@ -84,6 +84,7 @@ void app_main(void) {
 
   astra_init_core(); //初始化UI核心
   heater_init(); //初始化加热器
+  heater_output(2000);
   nvs_init(); //初始化NVS
   astra_list_item_t* setting_list_item = astra_new_list_item("Setup");
 
@@ -91,6 +92,7 @@ void app_main(void) {
   astra_list_item_t* ble_list_item = astra_new_list_item("Bluetooth");
   astra_list_item_t* temp_control_item = astra_new_list_item("Temperature Control"); 
   astra_list_item_t* about_list_item = astra_new_list_item("关于");
+
   astra_push_item_to_list(astra_get_root_list(), setting_list_item);
   astra_push_item_to_list(setting_list_item, wifi_list_item);
   astra_push_item_to_list(setting_list_item, ble_list_item);
@@ -118,7 +120,8 @@ void app_main(void) {
   }
 
   BaseType_t xReturned3 = xTaskCreate(adc_oneshot_read_task, "adc_oneshot_read_task", 2048, NULL, 3, NULL);
-  xTaskCreate(Temperature_Control_task, "Temperature_Control_task", 2048, NULL, 4, NULL);
+
+  // xTaskCreate(Temperature_Control_task, "Temperature_Control_task", 2048, NULL, 4, NULL);
 
 
 }

@@ -13,6 +13,7 @@
 #include "rotary_encoder.h"
 #include "esp_log.h"
 #include "timer.h"
+#include "heater.h"
 #define pgm_read_byte(addr)   (*(const unsigned char *)(addr))
 
 enum TEMP_CTRL_STATUS_CODE

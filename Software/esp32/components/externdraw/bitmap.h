@@ -9,7 +9,7 @@ extern uint8_t Logo[];
 
 
 extern uint8_t PositioningCursor[];
-
+extern uint8_t Battery_NoPower[];
 extern uint8_t Lightning[];
 //状态提示图标
 //width:14,height:14

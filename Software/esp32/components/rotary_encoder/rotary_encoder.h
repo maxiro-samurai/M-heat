@@ -10,6 +10,7 @@
 #include "esp_sleep.h"
 #include "astra_ui_item.h"
 #include "astra_ui_core.h"
+#include "beep.h"
 #define EXAMPLE_PCNT_HIGH_LIMIT 100
 #define EXAMPLE_PCNT_LOW_LIMIT  -100
 

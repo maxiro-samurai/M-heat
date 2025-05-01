@@ -1,7 +1,11 @@
 
 #include "beep.h"
 bool Volume = true;
-TONE testSound[]{
+uint32_t PlayTonesTimer = 0;
+uint16_t PlayTonesDelayTime = 0;
+uint16_t PlayTones_Schedule = 0;
+TONE* MySound = NULL;
+TONE testSound[]= {
     {NOTE_D,   CMT_9,    250},
     {NOTE_D,   CMT_7,    250},
     {NOTE_D,   CMT_5,    250},
@@ -27,7 +31,7 @@ TONE testSound[]{
     {NOTE_MAX, 255,      0},
 };
 
-TONE BootSound[]{
+TONE BootSound[]= {
     {NOTE_D,   CMT_5, 230},
     {NOTE_D,   CMT_7, 230},
     {NOTE_D,   CMT_9, 215},
@@ -35,31 +39,31 @@ TONE BootSound[]{
     {NOTE_MAX, 0,     0},
 };
 
-TONE TipInstall[]{
+TONE TipInstall[] = {
     {NOTE_D,   CMT_7, 250},
     {NOTE_D,   CMT_M, 250},
     {NOTE_MAX, 0,     0},
 };
 
-TONE TipRemove[]{
+TONE TipRemove[] = {
     {NOTE_D,   CMT_9, 250},
     {NOTE_D,   CMT_5, 250},
     {NOTE_MAX, 0,     0},
 };
 
-TONE Beep1[]{
+TONE Beep1[] = {
     {NOTE_D,   CMT_8, 50},
     {NOTE_MAX, 0,     0},
 };
 
-TONE Beep2[]{
+TONE Beep2[] = {
     {NOTE_D,   CMT_M,    50},
     {NOTE_D,   CMT_NULL, 50},
     {NOTE_D,   CMT_M,    50},
     {NOTE_MAX, 0,        0},
 };
 
-TONE Beep3[]{
+TONE Beep3[] = {
     {NOTE_D,   CMT_7, 50},
     {NOTE_D,   CMT_9, 50},
     {NOTE_D,   CMT_M, 50},
@@ -120,17 +124,22 @@ void beep_init(void)
 // 设置频率和音量（占空比）
 void buzzer_set_freq(uint32_t freq, uint32_t duty_percent) {
     // 更新频率
-    ledc_set_freq(LEDC_MODE, LEDC_TIMER, freq);
+    if (freq == 0)
+    ledc_stop(LEDC_MODE, LEDC_CHANNEL, 0);  // 停止发声
+    else
+    {
+        ledc_set_freq(LEDC_MODE, LEDC_TIMER, freq);
 
-    // 计算占空比（0~8191对应0%~100%）
-    uint32_t duty = (8191 * duty_percent) / 100;
-    ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, duty);
-    ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+        // 计算占空比（0~8191对应0%~100%）
+        uint32_t duty = (255 * duty_percent) / 100;
+        ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, duty);
+        ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
+    }
 }
 
 void set_Tone(uint32_t freq)
 {
-    buzzer_set_freq(freq,50);
+    buzzer_set_freq(freq,100);
 
 }
 
@@ -145,18 +154,23 @@ void SetSound(TONE sound[])
     PlayTones_Schedule = 0;
 }
 
-void ICACHE_RAM_ATTR PlaySoundLoop(void)
+void PlaySoundLoop(void)
 {
     if (!Volume)
     {
         MySound = NULL;
-        SetTone(0);
+        set_Tone(0);
     }
     if (MySound == NULL) return;
 
     PlayTones(MySound, &PlayTones_Schedule);
 }
+void beep_test(TONE Sound){
 
+    set_Note(Sound.note,Sound.rp);
+    vTaskDelay(pdMS_TO_TICKS(Sound.delay));
+    set_Tone(0);
+}
 uint8_t PlayTones(TONE* sound, uint16_t* Schedule)
 {
     if (xTaskGetTickCount() * portTICK_PERIOD_MS - PlayTonesTimer > PlayTonesDelayTime)
@@ -169,14 +183,14 @@ uint8_t PlayTones(TONE* sound, uint16_t* Schedule)
                 *Schedule = 0; //循环播放
             } else
             {
-                SetTone(0);
+                set_Tone(0);
                 return 1;
             }
         }
 
         //下一个音符
-        if (sound[*Schedule].rp == CMT_NULL) SetTone(0);
-        else SetTone(GetNote(sound[*Schedule].note, sound[*Schedule].rp));
+        if (sound[*Schedule].rp == CMT_NULL) set_Tone(0);
+        else set_Tone(GetNote(sound[*Schedule].note, sound[*Schedule].rp));
 
         PlayTonesTimer = xTaskGetTickCount() * portTICK_PERIOD_MS;
         //设置延时时间

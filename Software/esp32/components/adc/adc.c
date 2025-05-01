@@ -196,7 +196,7 @@ static void adc_temp(adc_continuous_item *adc){
     //低温情况下直接返回温度
     rt = adc->vol_low * 1000 / ((3300 - adc->vol_low) / 13);
     adc->now_temp = (100 / (log(rt / 10000.0) / 3950 + 1 / 298.15) - 27315) / 100; //转换为温度值
-    ESP_LOGI(TAG, "now_temp is :%u", adc->now_temp);
+    // ESP_LOGI(TAG, "now_temp is :%u", adc->now_temp);
     // if (adc->now_temp < 151)
     //     return;
     // //

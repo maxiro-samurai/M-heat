@@ -12,7 +12,7 @@ char* TempCTRL_Status_Mes[] = {
     "维持",
 };
 extern bool ble_state;
-
+extern bool wifi_enable;
 static const char *TAG = "example";
 
 
@@ -94,7 +94,7 @@ void DrawStatusBar(bool color)
 
     //功率条
     oled_draw_frame(104, 53, 23, 11);
-    oled_draw_box(104, 53, map(255, 0, 255, 0, 23), 11);
+    oled_draw_box(104, 53, map(output_pwm, 0, 8191, 0, 23), 11);
 
     oled_draw_H_line(117, 51, 11);
     oled_draw_pixel(103, 52);
@@ -104,11 +104,11 @@ void DrawStatusBar(bool color)
     // oled_set_font(u8g2_font_5x8_tn);
     // 显示温度值
     oled_set_draw_color(!color);
-    sprintf(buff, "%03d", 26);
+    sprintf(buff, "%d", ADC.set_temp);
     oled_draw_UTF8(2, 62, buff);
 
     // 显示功率值
-    sprintf(buff, "%d", 100);
+    sprintf(buff, "%lu%%", map(output_pwm, 0, 8191, 0, 100));
     oled_draw_UTF8(105, 62, buff);
     //////////////进入反色////////////////////////////////
     // 进入反色模式
@@ -141,20 +141,24 @@ void System_UI(void)
 
     // 温度控制图标
     Draw_Slow_Bitmap(74, 37, C_table[TempCTRL_Status], 14, 14);
-    
+    sprintf(temp,"%.2fV", system_vol); //获取温度值
+    oled_draw_UTF8(90, font_height, temp);
     if (system_vol <19){
 
         if ((get_ticks() / 1000) % 2)
                 {
                     //欠压告警图标
                     Draw_Slow_Bitmap(74, 21, Battery_NoPower, 14, 14);
-                } else
-                {
-                    //主电源电压
-                    ESP_LOGI(TAG, "vol: %.2f", system_vol);
-                    // Disp.printf("%.1fV", Get_MainPowerVoltage());
-                }
-                PWMOutput_Lock = true;
+                } 
+                // else
+                // {
+                //     //主电源电压
+                //     sprintf(temp,"%.2f v", system_vol); //获取温度值
+                //     oled_draw_UTF8(100, font_height-1, temp);
+                //     // ESP_LOGI(TAG, "vol: %.2f", system_vol);
+                //     // Disp.printf("%.1fV", Get_MainPowerVoltage());
+                // }
+                // PWMOutput_Lock = true;
     }
     //图标下显示中文
     oled_set_font(u8g2_font_my_chinese);
@@ -166,7 +170,7 @@ void System_UI(void)
 
     //蓝牙显示
     if (ble_state) Draw_Slow_Bitmap(92, 25, IMG_BLE_S, 9, 11);
-    
+    if (wifi_enable) Draw_Slow_Bitmap(92, 25, epd_bitmap_wifi_solid, 16, 16);
 
 
     //主页面显示温度
@@ -177,7 +181,7 @@ void System_UI(void)
 
     }
     else{
-        sprintf(temp,"%d", ADC.now_temp); //获取温度值
+        sprintf(temp,"%d", ADC.now_temp); //获取温度
         oled_draw_str(0, 51, temp);
     }
     oled_set_font(u8g2_font_my_chinese); //先显示温度
@@ -205,6 +209,14 @@ void System_UI(void)
     
     DrawStatusBar(1);
 
+    // //如果当前是处于爆发技能，则显示技能剩余时间进度条
+    // if (TempCTRL_Status == TEMP_STATUS_BOOST && DisplayFlashTick % 2)
+    // {
+    //     uint8_t BoostTimeBar = map(millis() - BoostTimer, 0, BoostTime * 1000, 0, 14);
+    //     Disp.drawBox(74, 37, 14, BoostTimeBar);
+
+    // }
+
    
     if (rotatry_encoder.key_state ==HOLD){
 
@@ -217,6 +229,7 @@ void System_UI(void)
         }
         else if (rotatry_encoder.hold_tick>=2000){
             astra_push_info_bar("Enter menu! :p", 2000);
+            rotatry_encoder.hold_tick = 0;
             in_astra = true;
 
         }

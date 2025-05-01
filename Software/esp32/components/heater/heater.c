@@ -288,7 +288,7 @@ void Temperature_Control_task(void){
     /*初始化PID控制器，设置初始参数 */
     pid_controller_t pid;
     heater_init();
-    pid_init(&pid, 1, 0.0, 0.0, 0, 8191, 200); // 初始化PID控制器
+    pid_init(&pid, 100, 10, 30, 0, 8191, 200); // 初始化PID控制器
     float Temperature_gap ;
     // /**调用初始化函数之前必须先调用设置回调函数函数！！！！！！**/
     // fta_set_received_start_cb(&fireToolPidAdaptor, fta_start_callback);

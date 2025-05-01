@@ -15,16 +15,7 @@
 #include "heater.h"
 #include "nvs_data.h"
 #include "timer.h"
-// 示例旋律（《小星星》片段）
-Tone melody[] = {
-  {262, 500},  // C4
-  {262, 500},
-  {392, 500},  // G4
-  {392, 500},
-  {440, 500},  // A4
-  {440, 500},
-  {392, 1000}  // G4
-};
+#include "wifi.h"
 
 
 bool wifi_enable = false;
@@ -69,13 +60,6 @@ void my_test_task(void *arg) {
     }
 }
 
-void beep_task(void *arg) {
-  while (1) {
-    
-    play_melody(melody, sizeof(melody)/sizeof(Tone));
-    vTaskDelay(2000 / portTICK_PERIOD_MS);
-  }
-}
 
 void app_main(void) {
   rotary_encoder_init();
@@ -85,22 +69,28 @@ void app_main(void) {
   astra_init_core(); //初始化UI核心
   heater_init(); //初始化加热器
   nvs_init(); //初始化NVS
+  
+  wifi_init_sta();
+
   astra_list_item_t* setting_list_item = astra_new_list_item("Setup");
 
   astra_list_item_t* wifi_list_item = astra_new_list_item("Wifi");
   astra_list_item_t* ble_list_item = astra_new_list_item("Bluetooth");
   astra_list_item_t* temp_control_item = astra_new_list_item("Temperature Control"); 
   astra_list_item_t* about_list_item = astra_new_list_item("关于");
+  astra_list_item_t* PID_list_item = astra_new_list_item("PID Setting");
+
 
   astra_push_item_to_list(astra_get_root_list(), setting_list_item);
   astra_push_item_to_list(setting_list_item, wifi_list_item);
   astra_push_item_to_list(setting_list_item, ble_list_item);
   astra_push_item_to_list(astra_get_root_list(), temp_control_item);
+  astra_push_item_to_list(astra_get_root_list(), PID_list_item);
   astra_push_item_to_list(astra_get_root_list(), about_list_item);
   astra_push_item_to_list(wifi_list_item, astra_new_switch_item("Enable wifi",&wifi_enable ));
   astra_push_item_to_list(ble_list_item, astra_new_switch_item("Enable BLE",&ble_state ));
   astra_push_item_to_list(temp_control_item, astra_new_slider_item("Temperature", &ADC.set_temp,10,10,250));
-
+  // astra_push_item_to_list(PID_list_item, astra_new_slider_item("Temperature", &ADC.set_temp,10,10,250));
 
   astra_push_item_to_list(temp_control_item,astra_new_user_item("Temp plot",init_temp_plot,temp_plot,temp_plot_quit));
 
@@ -111,7 +101,7 @@ void app_main(void) {
   } else {
     ESP_LOGE("Task", "Failed to create task");
   }
-  BaseType_t xReturned2 = xTaskCreate(encoder_task, "encoder_task", 2048, &rotatry_encoder, 3, NULL);
+  BaseType_t xReturned2 = xTaskCreate(encoder_task, "encoder_task", 2048, &rotatry_encoder, 4, NULL);
   if(xReturned2 == pdPASS) {
     ESP_LOGI("Task", "Task created successfully");
   } else {
@@ -120,7 +110,7 @@ void app_main(void) {
 
   BaseType_t xReturned3 = xTaskCreate(adc_oneshot_read_task, "adc_oneshot_read_task", 2048, NULL, 3, NULL);
 
-  // xTaskCreate(Temperature_Control_task, "Temperature_Control_task", 2048, NULL, 4, NULL);
+  xTaskCreate(Temperature_Control_task, "Temperature_Control_task", 2048, NULL, 4, NULL);
 
 
 }

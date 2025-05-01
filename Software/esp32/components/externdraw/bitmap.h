@@ -20,7 +20,7 @@ extern uint8_t c5[];
 extern uint8_t c6[];
 extern uint8_t c7[];
 extern uint8_t* C_table[];
-
+extern uint8_t epd_bitmap_wifi_solid[];
 extern uint8_t IMG_BLE_S[];
 
 #endif

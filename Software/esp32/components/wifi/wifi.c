@@ -103,3 +103,66 @@ void wifi_init_sta(void)
         ESP_LOGE(TAG, "UNEXPECTED EVENT");
     }
 }
+
+esp_err_t _http_event_handler(esp_http_client_event_t *evt) {
+    switch (evt->event_id) {
+        case HTTP_EVENT_ON_DATA:
+            ESP_LOGI("HTTP", "Received data: %.*s", evt->data_len, (char*)evt->data);
+            break;
+        // case HTTP_EVENT_ERROR:
+        //     if (evt->data.error_handle->error_type == HTTP_ERROR_TYPE_CONNECT) {
+        //         ESP_LOGE(TAG, "Connect Error: %s", 
+        //             esp_err_to_name(evt->data.error_handle->esp_tls_last_esp_err));
+        //     }
+        default:
+            break;
+    }
+    return ESP_OK;
+}
+
+void send_temp(){
+    //配置json 暂时传送电压和温度数据
+    cJSON *root = cJSON_CreateObject();
+    cJSON_AddNumberToObject(root,"temperature",100.5);
+    cJSON_AddNumberToObject(root,"voltage",5.1);
+    char *json_data = cJSON_PrintUnformatted(root);
+
+
+        // 在代码中添加网络诊断
+    // esp_ping_config_t ping_config = ESP_PING_CONFIG_DEFAULT();
+    // ping_config.target_addr = "http://localhost:8080/api/v1/TmvoAXAUE6G6XMaFfoGK/telemetry",
+    // esp_ping_callbacks_t cbs = { NULL, NULL, NULL, NULL };
+    // esp_ping_handle_t ping;
+    // esp_ping_new_session(&ping_config, &cbs, &ping);
+    // esp_ping_start(ping);
+    //配置HTTP客户端
+
+    esp_http_client_config_t config = {
+        .url = "http://localhost:8080/api/v1/TmvoAXAUE6G6XMaFfoGK/telemetry",
+        .method = HTTP_METHOD_POST,
+        .event_handler = _http_event_handler,
+        .buffer_size = 1024,
+        .transport_type = HTTP_TRANSPORT_OVER_TCP,
+        .timeout_ms = 10000,
+        .disable_auto_redirect = true,
+        .user_agent = "ESP32-HTTP-Client"
+    };
+    esp_http_client_handle_t client = esp_http_client_init(&config);
+
+    // 设置 HTTP 请求头
+    esp_http_client_set_header(client, "Content-Type", "application/json");
+    esp_http_client_set_post_field(client, json_data, strlen(json_data));
+
+    // 执行请求
+    esp_err_t err = esp_http_client_perform(client);
+    if (err == ESP_OK) {
+        ESP_LOGI("HTTP", "HTTP Status = %d", esp_http_client_get_status_code(client));
+    } else {
+        ESP_LOGE("HTTP", "HTTP Request failed: %s", esp_err_to_name(err));
+    }
+
+    // 清理资源
+    esp_http_client_cleanup(client);
+    cJSON_Delete(root);
+    free(json_data);
+}

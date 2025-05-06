@@ -71,7 +71,9 @@ void app_main(void) {
   nvs_init(); //初始化NVS
   
   wifi_init_sta();
-
+  // 等待 Wi-Fi 连接成功
+  vTaskDelay(5000 / portTICK_PERIOD_MS);
+  send_temp();
   astra_list_item_t* setting_list_item = astra_new_list_item("Setup");
 
   astra_list_item_t* wifi_list_item = astra_new_list_item("Wifi");

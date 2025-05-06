@@ -14,8 +14,8 @@
 #include "lwip/sys.h"
 #include "esp_http_client.h"
 #include "cJSON.h"
-#define ESP_WIFI_SSID      "TP-LINK_1002"
-#define ESP_WIFI_PASS      "13461002088"
+#define ESP_WIFI_SSID      "原神启动区"
+#define ESP_WIFI_PASS      "woaiwanyuan"
 #define ESP_MAXIMUM_RETRY   5
 #define WIFI_CONNECTED_BIT BIT0
 #define WIFI_FAIL_BIT      BIT1
@@ -23,8 +23,8 @@
 #define ESP_WIFI_SAE_MODE WPA3_SAE_PWE_BOTH
 #define EXAMPLE_H2E_IDENTIFIER ""
 
-#define THINGSBOARD_SERVER "http://localhost:8080"
-#define ACCESS_TOKEN "TmvoAXAUE6G6XMaFfoGK"
+#define THINGSBOARD_SERVER "http://192.168.31.71:8080"
+#define ACCESS_TOKEN "r8ya20c3vpww62ukwea0"
 
 
 

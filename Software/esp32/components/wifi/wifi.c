@@ -125,6 +125,7 @@ void send_temp(){
     cJSON *root = cJSON_CreateObject();
     cJSON_AddNumberToObject(root,"temperature",100.5);
     cJSON_AddNumberToObject(root,"voltage",5.1);
+    cJSON_AddNumberToObject(root,"target_temp",50);
     char *json_data = cJSON_PrintUnformatted(root);
 
 
@@ -138,7 +139,7 @@ void send_temp(){
     //配置HTTP客户端
 
     esp_http_client_config_t config = {
-        .url = "http://localhost:8080/api/v1/TmvoAXAUE6G6XMaFfoGK/telemetry",
+        .url = "http://192.168.31.71:8080/api/v1/r8ya20c3vpww62ukwea0/telemetry",
         .method = HTTP_METHOD_POST,
         .event_handler = _http_event_handler,
         .buffer_size = 1024,

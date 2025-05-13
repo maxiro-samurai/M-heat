@@ -1,4 +1,4 @@
-idf_component_register(SRCS "i2ctools_example_main.c"
+idf_component_register(SRCS "M-heart.c"
                        INCLUDE_DIRS "."
                        
-                       PRIV_REQUIRES astra_ui rotary_encoder beep adc externdraw firetool_PID_adaptor heater nvs timer wifi)
+                       REQUIRES astra_ui rotary_encoder beep adc externdraw firetool_PID_adaptor heater nvs timer wifi)

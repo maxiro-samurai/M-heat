@@ -38,6 +38,7 @@ typedef struct rotary_encoder_item_t
     EncoderState encoder_state;
     uint32_t last_tick; //上次按下时间
     int16_t last_encoder_value; //上次编码器值
+    uint32_t press_start;
     int16_t encoder_value; //编码器值
     ButtonState last_key_state; //上次按键状态
     uint32_t hold_tick; //按键保持时间

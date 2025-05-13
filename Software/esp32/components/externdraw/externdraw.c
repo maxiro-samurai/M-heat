@@ -310,3 +310,67 @@ void temp_plot(void)
     oled_set_draw_color(color); //恢复颜色
     vTaskDelay(200 / portTICK_PERIOD_MS); // 延时 0.2 秒
 }
+/**
+ * 初始化温度绘制函数
+ */
+
+void init_temp_plot(void){
+
+
+  for (int i = 0; i < SCREEN_WIDTH; i++) {
+    temperature_data[i] = 25.0;
+  }
+
+}
+
+/**
+ * 退出温度绘图
+ */
+
+void temp_plot_quit(void){
+
+  oled_clear_buffer(); // 清除OLED显示
+
+}
+
+
+
+
+void UI_task(void *arg) {
+
+    while (1) {
+      
+      oled_clear_buffer();
+      System_UI();
+      astra_ui_main_core();
+      astra_ui_widget_core();
+      oled_send_buffer();
+      vTaskDelay(pdMS_TO_TICKS(10)); // 延时 10 毫秒
+    }
+}
+
+void UI_init(void){
+  astra_list_item_t* setting_list_item = astra_new_list_item("Setup");
+
+  astra_list_item_t* wifi_list_item = astra_new_list_item("Wifi");
+  astra_list_item_t* ble_list_item = astra_new_list_item("Bluetooth");
+  astra_list_item_t* temp_control_item = astra_new_list_item("Temperature Control"); 
+  astra_list_item_t* about_list_item = astra_new_list_item("关于");
+  astra_list_item_t* PID_list_item = astra_new_list_item("PID Setting");
+
+
+  astra_push_item_to_list(astra_get_root_list(), setting_list_item);
+  astra_push_item_to_list(setting_list_item, wifi_list_item);
+  astra_push_item_to_list(setting_list_item, ble_list_item);
+  astra_push_item_to_list(astra_get_root_list(), temp_control_item);
+  astra_push_item_to_list(astra_get_root_list(), PID_list_item);
+  astra_push_item_to_list(astra_get_root_list(), about_list_item);
+  astra_push_item_to_list(wifi_list_item, astra_new_switch_item("Enable wifi",&wifi_enable ));
+  astra_push_item_to_list(ble_list_item, astra_new_switch_item("Enable BLE",&ble_state ));
+  astra_push_item_to_list(temp_control_item, astra_new_slider_item("Temperature", &ADC.set_temp,10,10,250));
+  astra_push_item_to_list(PID_list_item, astra_new_slider_item("Kp", &pid.Kp,5,0,200));
+  astra_push_item_to_list(PID_list_item, astra_new_slider_item("Ki", &pid.Ki,1,0,50));
+  astra_push_item_to_list(PID_list_item, astra_new_slider_item("Kd", &pid.Kd,1,10,100));
+
+  astra_push_item_to_list(temp_control_item,astra_new_user_item("Temp plot",init_temp_plot,temp_plot,temp_plot_quit));
+}

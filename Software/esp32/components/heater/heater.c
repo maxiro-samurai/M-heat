@@ -241,64 +241,47 @@ bool en_pid= true;
 uint16_t output_pwm;
 
 
-FireToolPIDAdaptor fireToolPidAdaptor;
-/**野火PID调试助手 */
-void fta_start_callback(unsigned char channel)
-{
-    printf("start command!,channel: %d\n", channel);
-}
+// FireToolPIDAdaptor fireToolPidAdaptor;
+// /**野火PID调试助手 */
+// void fta_start_callback(unsigned char channel)
+// {
+//     printf("start command!,channel: %d\n", channel);
+// }
 
-void fta_stop_callback(unsigned char channel)
-{
-    printf("stop command!channel: %d\n", channel);
-}
+// void fta_stop_callback(unsigned char channel)
+// {
+//     printf("stop command!channel: %d\n", channel);
+// }
 
-void fta_reset_callback(unsigned char channel)
-{
-    printf("reset command!channel: %d\n", channel);
-}
+// void fta_reset_callback(unsigned char channel)
+// {
+//     printf("reset command!channel: %d\n", channel);
+// }
 
-void fta_targetValue_callback(unsigned char channel, int32_t targetValue)
-{
-    printf("targetValue: %ld, channel: %d\n", targetValue, channel);
-}
+// void fta_targetValue_callback(unsigned char channel, int32_t targetValue)
+// {
+//     printf("targetValue: %ld, channel: %d\n", targetValue, channel);
+// }
 
-void fta_periodValue_callback(unsigned char channel, int32_t targetValue)
-{
-    printf("periodValue: %ld, channel: %d\n", targetValue, channel);
-}
+// void fta_periodValue_callback(unsigned char channel, int32_t targetValue)
+// {
+//     printf("periodValue: %ld, channel: %d\n", targetValue, channel);
+// }
 
-void fta_PID_callback(unsigned char channel, float P, float I, float D)
-{
-    printf("channel: %d, PID:%f, %f, %f\n", channel, P, I, D);
-}
-
-
-   
-    
-
-    
-
-   
+// void fta_PID_callback(unsigned char channel, float P, float I, float D)
+// {
+//     printf("channel: %d, PID:%f, %f, %f\n", channel, P, I, D);
+// }
 
 
-
+pid_controller_t pid ;
 
 void Temperature_Control_task(void){
     /*初始化PID控制器，设置初始参数 */
-    pid_controller_t pid;
+    
     heater_init();
     pid_init(&pid, 100, 10, 30, 0, 8191, 200); // 初始化PID控制器
     float Temperature_gap ;
-    // /**调用初始化函数之前必须先调用设置回调函数函数！！！！！！**/
-    // fta_set_received_start_cb(&fireToolPidAdaptor, fta_start_callback);
-    // fta_set_received_stop_cb(&fireToolPidAdaptor, fta_stop_callback);
-    // fta_set_received_reset_cb(&fireToolPidAdaptor, fta_reset_callback);
-    // fta_set_received_targetValue(&fireToolPidAdaptor, fta_targetValue_callback);
-    // fta_set_received_periodValue(&fireToolPidAdaptor, fta_periodValue_callback);
-    // fta_set_received_PID(&fireToolPidAdaptor, fta_PID_callback);
-
-    // fta_init(&fireToolPidAdaptor, 115200, 18, 17, UART_NUM_0, 1024);
     void *pid_event;
     while (1)
     {   
@@ -316,18 +299,8 @@ void Temperature_Control_task(void){
             if (en_pid)
             {
                 output_pwm =  pid_calculate(&pid,ADC.set_temp,ADC.now_temp);
-                ESP_LOGI(TAG, "PID输出值: %d", output_pwm);
+                // ESP_LOGI(TAG, "PID输出值: %d", output_pwm);
                 heater_output(output_pwm);
-
-                // fta_send_targetValue(&fireToolPidAdaptor, 1, ADC.set_temp);
-  
-                // fta_send_periodValue(&fireToolPidAdaptor, 1, pid.Sample_time);
-            
-                // fta_send_PID(&fireToolPidAdaptor, 1, pid.Kp, pid.Ki, pid.Kd);
-
-                // fta_send_actualValue(&fireToolPidAdaptor, 1, ADC.now_temp);
-
-
 
             }
 

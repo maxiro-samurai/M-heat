@@ -1,118 +1,46 @@
-#include <esp_log.h>
-#include <freertos/FreeRTOS.h>
-#include <freertos/task.h>
-#include <stdio.h>
-#include <string.h>
-#include "sdkconfig.h"
-#include "astra_ui_core.h"
-#include "astra_ui_draw_driver.h"
-#include "astra_ui_item.h"
-#include "rotary_encoder.h"
-#include "beep.h"
-#include "adc.h"
-#include "externdraw.h"
-#include "firetool_PID_adaptor.h"
-#include "heater.h"
-#include "nvs_data.h"
-#include "timer.h"
-#include "wifi.h"
+#include "M-heat.h"
 
 
-bool wifi_enable = false;
+bool wifi_enable = true;
 bool ble_state = false;
 
 
-void init_temp_plot(void){
-
-
-  for (int i = 0; i < SCREEN_WIDTH; i++) {
-    temperature_data[i] = 25.0;
-  }
-
-}
-
-
-void temp_plot_quit(void){
-
-  oled_clear_buffer(); // 清除OLED显示
-
-}
-
-
-
-
-void my_test_task(void *arg) {
-
-  
-
-    while (1) {
-      
-
-      
-      oled_clear_buffer();
-      // Draw_Num_Bar(0.5, 0, 1, 0, 0, 128, 64, 1);
-      System_UI();
-      astra_ui_main_core();
-      astra_ui_widget_core();
-      // // test_user_item_loop_function();
-      oled_send_buffer();
-      vTaskDelay(pdMS_TO_TICKS(10)); // 延时 10 毫秒
-    }
-}
-
 
 void app_main(void) {
-  rotary_encoder_init();
-  beep_init();
+  rotary_encoder_init();//旋转编码器初始化
+  beep_init();//蜂鸣器初始化
   astra_ui_driver_init(); //初始化I2C驱动
-
   astra_init_core(); //初始化UI核心
   heater_init(); //初始化加热器
   nvs_init(); //初始化NVS
-  
   wifi_init_sta();
+  // 设置时区并启动 SNTP
+  set_timezone();
+  initialize_sntp();
+  // 等待时间同步完成
+  wait_for_time_sync();
+  UI_init();
   // 等待 Wi-Fi 连接成功
-  vTaskDelay(5000 / portTICK_PERIOD_MS);
-  send_temp();
-  astra_list_item_t* setting_list_item = astra_new_list_item("Setup");
-
-  astra_list_item_t* wifi_list_item = astra_new_list_item("Wifi");
-  astra_list_item_t* ble_list_item = astra_new_list_item("Bluetooth");
-  astra_list_item_t* temp_control_item = astra_new_list_item("Temperature Control"); 
-  astra_list_item_t* about_list_item = astra_new_list_item("关于");
-  astra_list_item_t* PID_list_item = astra_new_list_item("PID Setting");
-
-
-  astra_push_item_to_list(astra_get_root_list(), setting_list_item);
-  astra_push_item_to_list(setting_list_item, wifi_list_item);
-  astra_push_item_to_list(setting_list_item, ble_list_item);
-  astra_push_item_to_list(astra_get_root_list(), temp_control_item);
-  astra_push_item_to_list(astra_get_root_list(), PID_list_item);
-  astra_push_item_to_list(astra_get_root_list(), about_list_item);
-  astra_push_item_to_list(wifi_list_item, astra_new_switch_item("Enable wifi",&wifi_enable ));
-  astra_push_item_to_list(ble_list_item, astra_new_switch_item("Enable BLE",&ble_state ));
-  astra_push_item_to_list(temp_control_item, astra_new_slider_item("Temperature", &ADC.set_temp,10,10,250));
-  // astra_push_item_to_list(PID_list_item, astra_new_slider_item("Temperature", &ADC.set_temp,10,10,250));
-
-  astra_push_item_to_list(temp_control_item,astra_new_user_item("Temp plot",init_temp_plot,temp_plot,temp_plot_quit));
-
-
-  BaseType_t xReturned = xTaskCreate(my_test_task, "my_test_task", 4096+2048, NULL, 5, NULL);
+  vTaskDelay(2000 / portTICK_PERIOD_MS);
+  
+  BaseType_t xReturned = xTaskCreate(UI_task, "UI_task", 4096+2048, NULL, 4, NULL);
   if(xReturned == pdPASS) {
     ESP_LOGI("Task", "Task created successfully");
   } else {
     ESP_LOGE("Task", "Failed to create task");
   }
-  BaseType_t xReturned2 = xTaskCreate(encoder_task, "encoder_task", 2048, &rotatry_encoder, 4, NULL);
+  BaseType_t xReturned2 = xTaskCreate(encoder_task, "encoder_task", 2048, &rotatry_encoder, 5, NULL);
   if(xReturned2 == pdPASS) {
     ESP_LOGI("Task", "Task created successfully");
   } else {
     ESP_LOGE("Task", "Failed to create task");
   }
 
-  BaseType_t xReturned3 = xTaskCreate(adc_oneshot_read_task, "adc_oneshot_read_task", 2048, NULL, 3, NULL);
+  BaseType_t xReturned3 = xTaskCreate(adc_oneshot_read_task, "adc_oneshot_read_task", 2048, NULL, 2, NULL);
 
-  xTaskCreate(Temperature_Control_task, "Temperature_Control_task", 2048, NULL, 4, NULL);
+  xTaskCreate(Temperature_Control_task, "Temperature_Control_task", 2048, NULL, 3, NULL);
+
+  xTaskCreate(http_long_poll_task, "http_long_poll_task", 8192, NULL, 4, NULL);
 
 
 }

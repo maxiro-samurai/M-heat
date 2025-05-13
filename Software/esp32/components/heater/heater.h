@@ -45,5 +45,5 @@ extern bool en_pid;
 extern uint16_t output_pwm;
 extern bool PWM_state;
 extern bool PWMOutput_Lock;
-
+extern pid_controller_t pid;
 #endif

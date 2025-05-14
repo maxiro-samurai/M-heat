@@ -13,6 +13,9 @@ void app_main(void) {
   astra_init_core(); //初始化UI核心
   heater_init(); //初始化加热器
   nvs_init(); //初始化NVS
+  nvs_set_parameter("Kp",100);
+  nvs_set_parameter("Ki",10);
+  nvs_set_parameter("Kd",30);
   wifi_init_sta();
   // 设置时区并启动 SNTP
   set_timezone();
@@ -25,18 +28,18 @@ void app_main(void) {
   
   BaseType_t xReturned = xTaskCreate(UI_task, "UI_task", 4096+2048, NULL, 4, NULL);
   if(xReturned == pdPASS) {
-    ESP_LOGI("Task", "Task created successfully");
+    ESP_LOGI("Task", "UI_task created successfully");
   } else {
-    ESP_LOGE("Task", "Failed to create task");
+    ESP_LOGE("Task", "Failed to create UI_task");
   }
-  BaseType_t xReturned2 = xTaskCreate(encoder_task, "encoder_task", 2048, &rotatry_encoder, 5, NULL);
-  if(xReturned2 == pdPASS) {
-    ESP_LOGI("Task", "Task created successfully");
+  BaseType_t xReturned = xTaskCreate(encoder_task, "encoder_task", 2048, &rotatry_encoder, 5, NULL);
+  if(xReturned == pdPASS) {
+    ESP_LOGI("Task", "encoder_task created successfully");
   } else {
-    ESP_LOGE("Task", "Failed to create task");
+    ESP_LOGE("Task", "Failed to create encoder_task");
   }
 
-  BaseType_t xReturned3 = xTaskCreate(adc_oneshot_read_task, "adc_oneshot_read_task", 2048, NULL, 2, NULL);
+  BaseType_t xReturned = xTaskCreate(adc_oneshot_read_task, "adc_oneshot_read_task", 2048, NULL, 2, NULL);
 
   xTaskCreate(Temperature_Control_task, "Temperature_Control_task", 2048, NULL, 3, NULL);
 

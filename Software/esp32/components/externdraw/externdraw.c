@@ -333,7 +333,22 @@ void temp_plot_quit(void){
 
 }
 
+void init_save_config(void){
+    
+    esp_err_t err1 = save_float_to_nvs("Kp",pid.Kp);
+    esp_err_t err2 = save_float_to_nvs("Ki",pid.Ki);
+    esp_err_t err3 = save_float_to_nvs("Kd",pid.Kd);
+    if (err1 == ESP_OK && err2 == ESP_OK && err3 == ESP_OK)
+    {
+        astra_push_info_bar("PID saved !", 2000);
+    }
 
+    else{
+
+        astra_push_info_bar("PID save failed!", 2000);
+    }
+    
+}
 
 
 void UI_task(void *arg) {
@@ -371,6 +386,6 @@ void UI_init(void){
   astra_push_item_to_list(PID_list_item, astra_new_slider_item("Kp", &pid.Kp,5,0,200));
   astra_push_item_to_list(PID_list_item, astra_new_slider_item("Ki", &pid.Ki,1,0,50));
   astra_push_item_to_list(PID_list_item, astra_new_slider_item("Kd", &pid.Kd,1,10,100));
-
+  astra_push_item_to_list(PID_list_item, astra_new_user_item("Save config",init_save_config,NULL,NULL));
   astra_push_item_to_list(temp_control_item,astra_new_user_item("Temp plot",init_temp_plot,temp_plot,temp_plot_quit));
 }

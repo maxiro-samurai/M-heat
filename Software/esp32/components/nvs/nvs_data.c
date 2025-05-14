@@ -72,7 +72,22 @@ void nvs_get_parameter(const char* key, int32_t *value)
     //关闭句柄
     nvs_close(nvs_handle);
 }
+// 保存浮点数
+esp_err_t save_float_to_nvs(nvs_handle_t handle, const char *key, float value) {
+    uint32_t temp;
+    memcpy(&temp, &value, sizeof(float)); // 将 float 转换为 uint32_t
+    return nvs_set_u32(handle, key, temp);
+}
 
+// 读取浮点数
+esp_err_t read_float_from_nvs(nvs_handle_t handle, const char *key, float *value) {
+    uint32_t temp;
+    esp_err_t err = nvs_get_u32(handle, key, &temp);
+    if (err == ESP_OK) {
+        memcpy(value, &temp, sizeof(float)); // 将 uint32_t 转回 float
+    }
+    return err;
+}
 
 /**
  * @brief NVS清除参数

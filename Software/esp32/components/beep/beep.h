@@ -6,6 +6,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "math.h" 
+#include "esp_log.h"
 
 #define LEDC_TIMER              LEDC_TIMER_0
 #define LEDC_MODE               LEDC_LOW_SPEED_MODE
@@ -56,7 +57,7 @@ void set_Note(note_t note ,uint8_t rp);
 void SetSound(TONE sound[]);
 void PlaySoundLoop(void);
 uint8_t PlayTones(TONE* sound, uint16_t* Schedule);
-void beep_test(TONE Sound);
+void beep_test(TONE* soundArray);
 
 extern bool Volume;
 extern TONE testSound[];
@@ -66,5 +67,6 @@ extern TONE TipRemove[];
 extern TONE Beep1[];
 extern TONE Beep2[];
 extern TONE Beep3[];
+extern TONE twinkleStar[];
 extern uint16_t PlayTones_Schedule;
 #endif // BEEP_H 

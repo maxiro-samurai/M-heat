@@ -1,6 +1,8 @@
 #include "externdraw.h"
 
 uint8_t TempCTRL_Status = TEMP_STATUS_OFF;
+bool SleepEvent = false;
+bool sleep_timer_started = false;  // 新增：睡眠计时启动标志
 uint8_t* C_table[] = {c1, c2, c3, Lightning, c5, c6, c7};
 char* TempCTRL_Status_Mes[] = {
     "错误",
@@ -105,17 +107,18 @@ void DrawStatusBar(bool color)
     // 显示温度值
     oled_set_draw_color(!color);
     sprintf(buff, "%d", ADC.set_temp);
-    oled_draw_UTF8(2, 62, buff);
+    oled_draw_UTF8(2, 63, buff);
 
     // 显示功率值
     sprintf(buff, "%lu%%", map(output_pwm, 0, 8191, 0, 100));
-    oled_draw_UTF8(105, 62, buff);
+    // sprintf(buff, "%lu%%",map(output_pwm,0,81));
+    oled_draw_UTF8(105, 63, buff);
     //////////////进入反色////////////////////////////////
     // 进入反色模式
     oled_set_draw_color(2);
 
     // 画指示针
-    Draw_Slow_Bitmap(map(250, 0, 300, 5, 98) - 4, 54, PositioningCursor, 8, 8);
+    Draw_Slow_Bitmap(map(ADC.set_temp, TEMP_MIN, TEMP_MAX, 15, 98) - 4, 54, PositioningCursor, 8, 8);
     
    
 
@@ -139,10 +142,10 @@ void System_UI(void)
     oled_draw_UTF8(0, font_height-1, "M-heat");
   
 
-    // 温度控制图标
-    Draw_Slow_Bitmap(74, 37, C_table[TempCTRL_Status], 14, 14);
+    
     sprintf(temp,"%.2fV", system_vol); //获取温度值
     oled_draw_UTF8(90, font_height, temp);
+    //电压检测
     if (system_vol <19){
 
         if ((get_ticks() / 1000) % 2)
@@ -158,11 +161,18 @@ void System_UI(void)
                 //     // ESP_LOGI(TAG, "vol: %.2f", system_vol);
                 //     // Disp.printf("%.1fV", Get_MainPowerVoltage());
                 // }
-                // PWMOutput_Lock = true;
+                PWMOutput_Lock = true;
+                PWM_state = false;
+                TempCTRL_Status = TEMP_STATUS_OFF;
     }
+    else{
+                PWMOutput_Lock = false;
+                PWM_state = true;
+            
+            }
     //图标下显示中文
     oled_set_font(u8g2_font_my_chinese);
-    oled_draw_UTF8(91, 40, TempCTRL_Status_Mes[TempCTRL_Status]);
+    
     // 欠压报警
 
     /*待完善*/
@@ -171,8 +181,13 @@ void System_UI(void)
     //蓝牙显示
     if (ble_state) Draw_Slow_Bitmap(92, 25, IMG_BLE_S, 9, 11);
     if (wifi_enable) Draw_Slow_Bitmap(92, 25, epd_bitmap_wifi_solid, 16, 16);
-
-
+    if (SleepEvent) TempCTRL_Status= TEMP_STATUS_SLEEP;
+    if ( heater_status.error_state ) TempCTRL_Status= TEMP_STATUS_ERROR;
+        
+    oled_draw_UTF8(95, 51, TempCTRL_Status_Mes[TempCTRL_Status]);
+    // 温度控制图标
+    Draw_Slow_Bitmap(74, 37, C_table[TempCTRL_Status], 14, 14);
+    
     //主页面显示温度
     oled_set_font(u8g2_font_logisoso38_tr);
     
@@ -233,6 +248,7 @@ void System_UI(void)
             in_astra = true;
 
         }
+       
         
 }
 
@@ -335,9 +351,9 @@ void temp_plot_quit(void){
 
 void init_save_config(void){
     
-    esp_err_t err1 = save_float_to_nvs("Kp",pid.Kp);
-    esp_err_t err2 = save_float_to_nvs("Ki",pid.Ki);
-    esp_err_t err3 = save_float_to_nvs("Kd",pid.Kd);
+    esp_err_t err1 = nvs_set_parameter("Kp",pid.Kp);
+    esp_err_t err2 = nvs_set_parameter("Ki",pid.Ki);
+    esp_err_t err3 = nvs_set_parameter("Kd",pid.Kd);
     if (err1 == ESP_OK && err2 == ESP_OK && err3 == ESP_OK)
     {
         astra_push_info_bar("PID saved !", 2000);
@@ -349,34 +365,167 @@ void init_save_config(void){
     }
     
 }
+/*
+* 更新系统状态码
+*/
+void update_system_status(void){
+
+static uint32_t sleeptimer = 0;
+
+    //温度错误
+    if(ADC.now_temp<TEMP_MIN || ADC.now_temp>TEMP_MAX){
+        TempCTRL_Status = TEMP_STATUS_ERROR;
+        
+        PWMOutput_Lock = true;// PWM锁打开
+        PWM_state = false;//PWM关闭
+        SleepEvent = false;
+        en_pid = false;//关闭PID
+
+    }
+    //正常温度
+    else{
+        PWMOutput_Lock = false;
+        PWM_state = true;
+        en_pid = true;
+
+        if (output_pwm > 2000)
+        {
+            //加热状态
+            TempCTRL_Status = TEMP_STATUS_HEAT;
+        } 
+        else{
+            //非睡眠模式
+            if(!SleepEvent)
+            {
+                if (ADC.set_temp-ADC.now_temp < 10)
+                {
+                    //温差接近目标值：正常
+                    TempCTRL_Status = TEMP_STATUS_WORKY;
+                } else
+                {
+                    //进行PID微调：维持
+                    TempCTRL_Status = TEMP_STATUS_HOLD;
+                }
+            }
+    }
+    //睡眠状态监测
+    if (ADC.set_temp == 0 || TempCTRL_Status == TEMP_STATUS_OFF)
+    {
+        // 首次检测到设置温度为0时启动计时
+            if (!sleep_timer_started) {
+                sleeptimer = xTaskGetTickCount() ;
+                sleep_timer_started = true;
+            }
+
+            // 检查是否超时（1分钟）
+            if (SleepEvent == false && (xTaskGetTickCount()  - sleeptimer) >= pdMS_TO_TICKS(60000)) 
+            {
+                TempCTRL_Status = TEMP_STATUS_SLEEP;  // 进入睡眠状态
+                PWM_state = false;                   // 关闭PWM输出
+                SleepEvent = true;                    // 触发睡眠事件
+                astra_push_info_bar("进入睡眠模式", 2000);
+                bright = 0;
+            }
+    }
+    else
+    {
+        // 取消睡眠状态
+        if (SleepEvent == true)
+        {
+            SleepEvent = false;
+            sleep_timer_started = false; // 重置计时器启动标志
+            bright = 100;
+            PWM_state = true;
+            astra_push_info_bar("退出睡眠模式", 2000);
+        
+        }
+    }
+}
 
 
+}
+
+
+
+
+
+
+uint8_t bright = 100;
 void UI_task(void *arg) {
 
     while (1) {
       
       oled_clear_buffer();
       System_UI();
+      update_system_status();
       astra_ui_main_core();
       astra_ui_widget_core();
+      oled_set_light(map(bright, 0, 100, 0, 255));
       oled_send_buffer();
       vTaskDelay(pdMS_TO_TICKS(10)); // 延时 10 毫秒
     }
 }
 
+// 生成QR码并显示
+void display_qrcode(const char *text) {
+    enum qrcodegen_Ecc errCorLvl = qrcodegen_Ecc_LOW;  // 纠错等级
+    uint8_t qrData[qrcodegen_BUFFER_LEN_MAX];          // QR数据缓冲区
+    uint8_t tempBuffer[qrcodegen_BUFFER_LEN_MAX];      // 临时缓冲区
+    bool ok = qrcodegen_encodeText(text, tempBuffer, qrData, errCorLvl,
+                                   qrcodegen_VERSION_MIN, 3,
+                                   qrcodegen_Mask_AUTO, true);
+    if (!ok) {
+        // 生成失败处理
+        return;
+    }
+
+    // 获取QR码尺寸
+    int size = qrcodegen_getSize(qrData);
+    // 计算缩放系数（OLED 128x64适配）
+    int scale = 1;
+    if (size <= 64) scale = 2;   // 小尺寸QR码放大
+    else if (size <= 32) scale = 4;
+
+    // 计算QR码在OLED上的起始位置（居中）
+    int startX = (128 - size * scale) / 2;
+    int startY = (64 - size * scale) / 2;
+
+    oled_clear_buffer();
+
+    // 遍历所有模块并绘制
+    for (int y = 0; y < size; y++) {
+        for (int x = 0; x < size; x++) {
+            if (qrcodegen_getModule(qrData, x, y)) {
+                // 绘制一个模块（根据缩放系数填充）
+                oled_draw_box(startX + x * scale,
+                                startY + y * scale,
+                                scale, scale);
+            }
+        }
+    }
+
+    oled_send_buffer();
+}
+
+void qrcode(void){
+
+    display_qrcode("M-HEAT");
+}
+
 void UI_init(void){
-  astra_list_item_t* setting_list_item = astra_new_list_item("Setup");
+  astra_list_item_t* setting_list_item = astra_new_list_item("设置");
 
   astra_list_item_t* wifi_list_item = astra_new_list_item("Wifi");
-  astra_list_item_t* ble_list_item = astra_new_list_item("Bluetooth");
-  astra_list_item_t* temp_control_item = astra_new_list_item("Temperature Control"); 
+  astra_list_item_t* ble_list_item = astra_new_list_item("蓝牙");
+  astra_list_item_t* temp_control_item = astra_new_list_item("温度控制"); 
   astra_list_item_t* about_list_item = astra_new_list_item("关于");
-  astra_list_item_t* PID_list_item = astra_new_list_item("PID Setting");
-
+  astra_list_item_t* PID_list_item = astra_new_list_item("PID设置");
 
   astra_push_item_to_list(astra_get_root_list(), setting_list_item);
   astra_push_item_to_list(setting_list_item, wifi_list_item);
   astra_push_item_to_list(setting_list_item, ble_list_item);
+  
+  astra_push_item_to_list(setting_list_item,astra_new_slider_item("Light",&bright,10,0,100));
   astra_push_item_to_list(astra_get_root_list(), temp_control_item);
   astra_push_item_to_list(astra_get_root_list(), PID_list_item);
   astra_push_item_to_list(astra_get_root_list(), about_list_item);
@@ -386,6 +535,7 @@ void UI_init(void){
   astra_push_item_to_list(PID_list_item, astra_new_slider_item("Kp", &pid.Kp,5,0,200));
   astra_push_item_to_list(PID_list_item, astra_new_slider_item("Ki", &pid.Ki,1,0,50));
   astra_push_item_to_list(PID_list_item, astra_new_slider_item("Kd", &pid.Kd,1,10,100));
-  astra_push_item_to_list(PID_list_item, astra_new_user_item("Save config",init_save_config,NULL,NULL));
+  astra_push_item_to_list(PID_list_item, astra_new_user_item("Save config",init_save_config,NULL,NULL));//改善
   astra_push_item_to_list(temp_control_item,astra_new_user_item("Temp plot",init_temp_plot,temp_plot,temp_plot_quit));
+  astra_push_item_to_list(about_list_item, astra_new_user_item("项目地址",NULL,qrcode,NULL));
 }

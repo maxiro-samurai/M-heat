@@ -18,6 +18,9 @@
 #define HEATER_DUTY               (4095) // Set duty to 50%. ((2 ** 13) - 1) * 50% = 4095
 #define HEATER_FREQUENCY          (2000)
 
+#define HEATER_TIMEOUT        300     // 5分钟（300秒）
+#define TEMP_STUCK_THRESHOLD  30      // 温度卡滞检测阈值（30秒）
+#define TEMP_RISE_THRESHOLD   1.0f    // 最小温升阈值（1℃）
 
 typedef struct {
     float Kp;           // 比例系数
@@ -31,6 +34,11 @@ typedef struct {
     float target_value; // 目标值
 } pid_controller_t;
 
+typedef struct {
+    bool error_state;
+    bool first_work;
+    uint32_t heater_timer; 
+}heater_status_t;
 
 void heater_init(void);
 void heater_output(uint16_t pwm);
@@ -46,4 +54,5 @@ extern uint16_t output_pwm;
 extern bool PWM_state;
 extern bool PWMOutput_Lock;
 extern pid_controller_t pid;
+extern heater_status_t heater_status;
 #endif

@@ -52,6 +52,7 @@ extern u8g2_t u8g2;
 #define oled_send_area_buffer(x, y, w, h) u8g2_UpdateDisplayArea(&u8g2, x, y, w, h)
 #define oled_get_draw_color()   u8g2_GetDrawColor(&u8g2)
 #define oled_draw_triangle(x1, y1, x2, y2, x3, y3) u8g2_DrawTriangle(&u8g2, x1, y1, x2, y2, x3, y3)
+#define oled_set_light(x) u8g2_SetContrast(&u8g2,x)
 /* 此处修改oled绘制函数 */
 
 extern void astra_ui_driver_init();

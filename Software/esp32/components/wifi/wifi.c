@@ -1,31 +1,31 @@
 #include "wifi.h"
 
-const char* server_cert ="-----BEGIN CERTIFICATE-----\n"
-"MIIEVzCCAj+gAwIBAgIRAIOPbGPOsTmMYgZigxXJ/d4wDQYJKoZIhvcNAQELBQAw\n"
-"TzELMAkGA1UEBhMCVVMxKTAnBgNVBAoTIEludGVybmV0IFNlY3VyaXR5IFJlc2Vh\n"
-"cmNoIEdyb3VwMRUwEwYDVQQDEwxJU1JHIFJvb3QgWDEwHhcNMjQwMzEzMDAwMDAw\n"
-"WhcNMjcwMzEyMjM1OTU5WjAyMQswCQYDVQQGEwJVUzEWMBQGA1UEChMNTGV0J3Mg\n"
-"RW5jcnlwdDELMAkGA1UEAxMCRTUwdjAQBgcqhkjOPQIBBgUrgQQAIgNiAAQNCzqK\n"
-"a2GOtu/cX1jnxkJFVKtj9mZhSAouWXW0gQI3ULc/FnncmOyhKJdyIBwsz9V8UiBO\n"
-"VHhbhBRrwJCuhezAUUE8Wod/Bk3U/mDR+mwt4X2VEIiiCFQPmRpM5uoKrNijgfgw\n"
-"gfUwDgYDVR0PAQH/BAQDAgGGMB0GA1UdJQQWMBQGCCsGAQUFBwMCBggrBgEFBQcD\n"
-"ATASBgNVHRMBAf8ECDAGAQH/AgEAMB0GA1UdDgQWBBSfK1/PPCFPnQS37SssxMZw\n"
-"i9LXDTAfBgNVHSMEGDAWgBR5tFnme7bl5AFzgAiIyBpY9umbbjAyBggrBgEFBQcB\n"
-"AQQmMCQwIgYIKwYBBQUHMAKGFmh0dHA6Ly94MS5pLmxlbmNyLm9yZy8wEwYDVR0g\n"
-"BAwwCjAIBgZngQwBAgEwJwYDVR0fBCAwHjAcoBqgGIYWaHR0cDovL3gxLmMubGVu\n"
-"Y3Iub3JnLzANBgkqhkiG9w0BAQsFAAOCAgEAH3KdNEVCQdqk0LKyuNImTKdRJY1C\n"
-"2uw2SJajuhqkyGPY8C+zzsufZ+mgnhnq1A2KVQOSykOEnUbx1cy637rBAihx97r+\n"
-"bcwbZM6sTDIaEriR/PLk6LKs9Be0uoVxgOKDcpG9svD33J+G9Lcfv1K9luDmSTgG\n"
-"6XNFIN5vfI5gs/lMPyojEMdIzK9blcl2/1vKxO8WGCcjvsQ1nJ/Pwt8LQZBfOFyV\n"
-"XP8ubAp/au3dc4EKWG9MO5zcx1qT9+NXRGdVWxGvmBFRAajciMfXME1ZuGmk3/GO\n"
-"koAM7ZkjZmleyokP1LGzmfJcUd9s7eeu1/9/eg5XlXd/55GtYjAM+C4DG5i7eaNq\n"
-"cm2F+yxYIPt6cbbtYVNJCGfHWqHEQ4FYStUyFnv8sjyqU8ypgZaNJ9aVcWSICLOI\n"
-"E1/Qv/7oKsnZCWJ926wU6RqG1OYPGOi1zuABhLw61cuPVDT28nQS/e6z95cJXq0e\n"
-"K1BcaJ6fJZsmbjRgD5p3mvEf5vdQM7MCEvU0tHbsx2I5mHHJoABHb8KVBgWp/lcX\n"
-"GWiWaeOyB7RP+OfDtvi2OsapxXiV7vNVs7fMlrRjY1joKaqmmycnBvAq14AEbtyL\n"
-"sVfOS66B8apkeFX2NY4XPEYV4ZSCe8VHPrdrERk2wILG3T/EGmSIkCYVUMSnjmJd\n"
-"VQD9F6Na/+zmXCc=\n"
-"-----END CERTIFICATE-----";
+// const char* server_cert ="-----BEGIN CERTIFICATE-----\n"
+// "MIIEVzCCAj+gAwIBAgIRAIOPbGPOsTmMYgZigxXJ/d4wDQYJKoZIhvcNAQELBQAw\n"
+// "TzELMAkGA1UEBhMCVVMxKTAnBgNVBAoTIEludGVybmV0IFNlY3VyaXR5IFJlc2Vh\n"
+// "cmNoIEdyb3VwMRUwEwYDVQQDEwxJU1JHIFJvb3QgWDEwHhcNMjQwMzEzMDAwMDAw\n"
+// "WhcNMjcwMzEyMjM1OTU5WjAyMQswCQYDVQQGEwJVUzEWMBQGA1UEChMNTGV0J3Mg\n"
+// "RW5jcnlwdDELMAkGA1UEAxMCRTUwdjAQBgcqhkjOPQIBBgUrgQQAIgNiAAQNCzqK\n"
+// "a2GOtu/cX1jnxkJFVKtj9mZhSAouWXW0gQI3ULc/FnncmOyhKJdyIBwsz9V8UiBO\n"
+// "VHhbhBRrwJCuhezAUUE8Wod/Bk3U/mDR+mwt4X2VEIiiCFQPmRpM5uoKrNijgfgw\n"
+// "gfUwDgYDVR0PAQH/BAQDAgGGMB0GA1UdJQQWMBQGCCsGAQUFBwMCBggrBgEFBQcD\n"
+// "ATASBgNVHRMBAf8ECDAGAQH/AgEAMB0GA1UdDgQWBBSfK1/PPCFPnQS37SssxMZw\n"
+// "i9LXDTAfBgNVHSMEGDAWgBR5tFnme7bl5AFzgAiIyBpY9umbbjAyBggrBgEFBQcB\n"
+// "AQQmMCQwIgYIKwYBBQUHMAKGFmh0dHA6Ly94MS5pLmxlbmNyLm9yZy8wEwYDVR0g\n"
+// "BAwwCjAIBgZngQwBAgEwJwYDVR0fBCAwHjAcoBqgGIYWaHR0cDovL3gxLmMubGVu\n"
+// "Y3Iub3JnLzANBgkqhkiG9w0BAQsFAAOCAgEAH3KdNEVCQdqk0LKyuNImTKdRJY1C\n"
+// "2uw2SJajuhqkyGPY8C+zzsufZ+mgnhnq1A2KVQOSykOEnUbx1cy637rBAihx97r+\n"
+// "bcwbZM6sTDIaEriR/PLk6LKs9Be0uoVxgOKDcpG9svD33J+G9Lcfv1K9luDmSTgG\n"
+// "6XNFIN5vfI5gs/lMPyojEMdIzK9blcl2/1vKxO8WGCcjvsQ1nJ/Pwt8LQZBfOFyV\n"
+// "XP8ubAp/au3dc4EKWG9MO5zcx1qT9+NXRGdVWxGvmBFRAajciMfXME1ZuGmk3/GO\n"
+// "koAM7ZkjZmleyokP1LGzmfJcUd9s7eeu1/9/eg5XlXd/55GtYjAM+C4DG5i7eaNq\n"
+// "cm2F+yxYIPt6cbbtYVNJCGfHWqHEQ4FYStUyFnv8sjyqU8ypgZaNJ9aVcWSICLOI\n"
+// "E1/Qv/7oKsnZCWJ926wU6RqG1OYPGOi1zuABhLw61cuPVDT28nQS/e6z95cJXq0e\n"
+// "K1BcaJ6fJZsmbjRgD5p3mvEf5vdQM7MCEvU0tHbsx2I5mHHJoABHb8KVBgWp/lcX\n"
+// "GWiWaeOyB7RP+OfDtvi2OsapxXiV7vNVs7fMlrRjY1joKaqmmycnBvAq14AEbtyL\n"
+// "sVfOS66B8apkeFX2NY4XPEYV4ZSCe8VHPrdrERk2wILG3T/EGmSIkCYVUMSnjmJd\n"
+// "VQD9F6Na/+zmXCc=\n"
+// "-----END CERTIFICATE-----";
 
 extern bool wifi_enable;
 /* FreeRTOS event group to signal when we are connected*/
@@ -51,6 +51,7 @@ static void event_handler(void* arg, esp_event_base_t event_base,
             esp_wifi_connect();
             s_retry_num++;
             ESP_LOGI(TAG, "retry to connect to the AP");
+            xEventGroupSetBits(s_wifi_event_group, WIFI_DISCONNECTED_BIT);
         } else {
             xEventGroupSetBits(s_wifi_event_group, WIFI_FAIL_BIT);
         }
@@ -104,29 +105,30 @@ void wifi_init_sta(void)
     };
     ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA) );
     ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &wifi_config) );
-    ESP_ERROR_CHECK(esp_wifi_start() );
+    xEventGroupSetBits(s_wifi_event_group, WIFI_DISCONNECTED_BIT);//初始WIFI 未连接
+    // ESP_ERROR_CHECK(esp_wifi_start() );
 
-    ESP_LOGI(TAG, "wifi_init_sta finished.");
+    // ESP_LOGI(TAG, "wifi_init_sta finished.");
 
-    /* Waiting until either the connection is established (WIFI_CONNECTED_BIT) or connection failed for the maximum
-     * number of re-tries (WIFI_FAIL_BIT). The bits are set by event_handler() (see above) */
-    EventBits_t bits = xEventGroupWaitBits(s_wifi_event_group,
-            WIFI_CONNECTED_BIT | WIFI_FAIL_BIT,
-            pdFALSE,
-            pdFALSE,
-            portMAX_DELAY);
+    // /* Waiting until either the connection is established (WIFI_CONNECTED_BIT) or connection failed for the maximum
+    //  * number of re-tries (WIFI_FAIL_BIT). The bits are set by event_handler() (see above) */
+    // EventBits_t bits = xEventGroupWaitBits(s_wifi_event_group,
+    //         WIFI_CONNECTED_BIT | WIFI_FAIL_BIT,
+    //         pdFALSE,
+    //         pdFALSE,
+    //         portMAX_DELAY);
 
-    /* xEventGroupWaitBits() returns the bits before the call returned, hence we can test which event actually
-     * happened. */
-    if (bits & WIFI_CONNECTED_BIT) {
-        ESP_LOGI(TAG, "connected to ap SSID:%s password:%s",
-                 ESP_WIFI_SSID, ESP_WIFI_PASS);
-    } else if (bits & WIFI_FAIL_BIT) {
-        ESP_LOGI(TAG, "Failed to connect to SSID:%s, password:%s",
-                 ESP_WIFI_SSID, ESP_WIFI_PASS);
-    } else {
-        ESP_LOGE(TAG, "UNEXPECTED EVENT");
-    }
+    // /* xEventGroupWaitBits() returns the bits before the call returned, hence we can test which event actually
+    //  * happened. */
+    // if (bits & WIFI_CONNECTED_BIT) {
+    //     ESP_LOGI(TAG, "connected to ap SSID:%s password:%s",
+    //              ESP_WIFI_SSID, ESP_WIFI_PASS);
+    // } else if (bits & WIFI_FAIL_BIT) {
+    //     ESP_LOGI(TAG, "Failed to connect to SSID:%s, password:%s",
+    //              ESP_WIFI_SSID, ESP_WIFI_PASS);
+    // } else {
+    //     ESP_LOGE(TAG, "UNEXPECTED EVENT");
+    // }
 }
 // 发送 HTTP POST 请求（用于响应或主动发送 RPC）
 static esp_err_t http_post(const char *url, const char *data) {
@@ -167,8 +169,7 @@ static void handle_rpc(const cJSON *rpc) {
             en_pid = params->valueint;
             ESP_LOGI(TAG,"Active: %s", params->valueint ? "true" : "false");
         }
-        snprintf(url, sizeof(url), "http://%s/api/v1/%s/rpc/%d", THINGSBOARD_SERVER, ACCESS_TOKEN, id->valueint);
-        http_post(url, response);
+        
     }
     else if (strcmp(method->valuestring, "setVolume") == 0){
         if (params && cJSON_IsBool(params))
@@ -176,11 +177,30 @@ static void handle_rpc(const cJSON *rpc) {
             Volume = params->valueint;
             ESP_LOGI(TAG,"Active: %s", params->valueint ? "true" : "false");
         }
-        snprintf(url, sizeof(url), "http://%s/api/v1/%s/rpc/%d", THINGSBOARD_SERVER, ACCESS_TOKEN, id->valueint);
-        http_post(url, response);
+        
+    }
+    else if (strcmp(method->valuestring, "saveConfig") == 0){
+        if (params && cJSON_IsBool(params))
+        {
+            esp_err_t err1 = nvs_set_parameter("Kp",pid.Kp);
+            esp_err_t err2 = nvs_set_parameter("Ki",pid.Ki);
+            esp_err_t err3 = nvs_set_parameter("Kd",pid.Kd);
+            if (err1 == ESP_OK && err2 == ESP_OK && err3 == ESP_OK)
+            ESP_LOGI(TAG,"Save config kp:%.2f,ki:%.2f,kd:%.2f",pid.Kp,pid.Ki,pid.Kd);
+        }
+        
+    }
+    else if (strcmp(method->valuestring, "setBright") == 0){
+        if (params && cJSON_IsNumber(params))
+        {
+            bright = params->valueint;
+            ESP_LOGI(TAG,"bright: %d", bright);
+        }
+        
     }
     
-       
+    snprintf(url, sizeof(url), "http://%s/api/v1/%s/rpc/%d", THINGSBOARD_SERVER, ACCESS_TOKEN, id->valueint);
+    http_post(url, response);   
 }
 static void handle_tb_attributes(const cJSON *rpc){
 
@@ -272,6 +292,11 @@ void send_temp(){
     cJSON_AddNumberToObject(root,"Kd",pid.Kd);
     cJSON_AddBoolToObject(root,"Sound",Volume);
     cJSON_AddBoolToObject(root,"Heater",en_pid);
+    cJSON_AddNumberToObject(root,"vl",ADC.vol_low);
+    cJSON_AddNumberToObject(root,"vh",ADC.vol_high);
+    cJSON_AddNumberToObject(root,"hightemp",ADC.now_temp_high);
+    cJSON_AddNumberToObject(root,"bright",bright);
+    cJSON_AddNumberToObject(root,"outpwm",output_pwm);
     char *json_data = cJSON_PrintUnformatted(root);
 
 
@@ -367,13 +392,36 @@ void http_long_poll_task(void *pvParameters){
 
     
              while (1) {
+                // 如果开启WIFI功能
                 if (wifi_enable){
-                    send_temp();
-                    snprintf(url, sizeof(url), "http://%s/api/v1/%s/rpc?timeout=%d", THINGSBOARD_SERVER, ACCESS_TOKEN, RPC_TIMEOUT_MS);
-                    get_rpc_command(url);
-                    snprintf(url, sizeof(url), "http://%s/api/v1/%s/attributes?sharedKeys=Kp,Ki,Kd,temperature&timeout=%d", THINGSBOARD_SERVER, ACCESS_TOKEN, RPC_TIMEOUT_MS);
-                    fetch_tb_attributes(url);
-                    
+                    EventBits_t bits = xEventGroupWaitBits(s_wifi_event_group,
+                            WIFI_CONNECTED_BIT | WIFI_FAIL_BIT| WIFI_DISCONNECTED_BIT,
+                            pdFALSE,
+                            pdFALSE,
+                            portMAX_DELAY);
+
+                    // 如果wifi 已连接
+                    if (bits & WIFI_CONNECTED_BIT) {
+                        send_temp();
+                        snprintf(url, sizeof(url), "http://%s/api/v1/%s/rpc?timeout=%d", THINGSBOARD_SERVER, ACCESS_TOKEN, RPC_TIMEOUT_MS);
+                        get_rpc_command(url);
+                        snprintf(url, sizeof(url), "http://%s/api/v1/%s/attributes?sharedKeys=Kp,Ki,Kd,temperature&timeout=%d", THINGSBOARD_SERVER, ACCESS_TOKEN, RPC_TIMEOUT_MS);
+                        fetch_tb_attributes(url);
+                    } else if (bits & WIFI_FAIL_BIT) { //连接失败
+                            ESP_LOGI(TAG, "Failed to connect to SSID:%s, password:%s",ESP_WIFI_SSID, ESP_WIFI_PASS);
+                    } else if (bits & WIFI_DISCONNECTED_BIT)
+                        esp_wifi_start();
+                     else {
+                        ESP_LOGE(TAG, "UNEXPECTED EVENT");
+                    }
+    
+                }
+                else{
+                    // 关闭wifi
+                    esp_wifi_disconnect();
+                    esp_wifi_stop();
+                    xEventGroupClearBits(s_wifi_event_group, WIFI_CONNECTED_BIT | WIFI_FAIL_BIT);
+                    xEventGroupSetBits(s_wifi_event_group, WIFI_DISCONNECTED_BIT);
                 }
                 vTaskDelay(1000 / portTICK_PERIOD_MS);
             }

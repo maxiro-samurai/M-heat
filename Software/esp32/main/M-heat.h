@@ -14,11 +14,11 @@
 #include "beep.h"
 #include "adc.h"
 #include "externdraw.h"
-#include "firetool_PID_adaptor.h"
 #include "heater.h"
 #include "nvs_data.h"
 #include "timer.h"
 #include "wifi.h"
+
 
 extern bool wifi_enable ;
 extern bool ble_state ;

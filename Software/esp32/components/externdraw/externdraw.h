@@ -13,6 +13,7 @@
 #include "timer.h"
 #include "heater.h"
 #include "nvs_data.h"
+#include "qrcodegen.h"
 #define pgm_read_byte(addr)   (*(const unsigned char *)(addr))
 
 enum TEMP_CTRL_STATUS_CODE
@@ -34,6 +35,6 @@ void UI_init(void);
 void UI_task(void *arg);
 
 extern float temperature_data[SCREEN_WIDTH];  // 温度数据数组
-
+extern uint8_t bright;
 
 #endif

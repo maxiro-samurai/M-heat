@@ -162,11 +162,11 @@ void encoder_state_detection(rotary_encoder_item_t *encoder) {
         if (encoder->encoder_value > encoder->last_encoder_value + 3) {
             ESP_LOGI(TAG, "编码器左旋转,值: %d", encoder->encoder_value);
             encoder->encoder_state = LEFT;
-            beep_test(Beep1[0]);
+            beep_test(&Beep1);
         } else if(encoder->encoder_value < encoder->last_encoder_value - 3) {
             ESP_LOGI(TAG, "编码器右旋转,值: %d", encoder->encoder_value);
             encoder->encoder_state = RIGHT;
-            beep_test(Beep1[0]);
+            beep_test(&Beep1);
         }
         encoder->last_encoder_value = encoder->encoder_value; 
         

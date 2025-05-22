@@ -5,6 +5,7 @@ uint32_t PlayTonesTimer = 0;
 uint16_t PlayTonesDelayTime = 0;
 uint16_t PlayTones_Schedule = 0;
 TONE* MySound = NULL;
+static const char *TAG = "Sound";
 TONE testSound[]= {
     {NOTE_D,   CMT_9,    250},
     {NOTE_D,   CMT_7,    250},
@@ -139,13 +140,15 @@ void buzzer_set_freq(uint32_t freq, uint32_t duty_percent) {
 
 void set_Tone(uint32_t freq)
 {
-    buzzer_set_freq(freq,100);
+    buzzer_set_freq(freq,50);
+    ESP_LOGI(TAG, "sound freq: %lu", freq);
 
 }
 
 void set_Note(note_t note ,uint8_t rp)
 {
-    set_Tone(GetNote(note,rp));
+    if(!Volume) set_Tone(0);
+    else set_Tone(GetNote(note,rp));
 }
 
 void SetSound(TONE sound[])
@@ -165,12 +168,25 @@ void PlaySoundLoop(void)
 
     PlayTones(MySound, &PlayTones_Schedule);
 }
-void beep_test(TONE Sound){
-
-    set_Note(Sound.note,Sound.rp);
-    vTaskDelay(pdMS_TO_TICKS(Sound.delay));
-    set_Tone(0);
+void beep_test(TONE *soundArray) {
+    int i = 0;
+    while (1) {
+        TONE current = soundArray[i];
+        // 检查终止条件：NOTE_MAX 表示结束
+        if (current.note == NOTE_MAX) {
+            set_Tone(0);
+            break;
+        }
+        // 设置当前音符和参数
+        set_Note(current.note, current.rp);
+        // 延迟指定的时间
+        vTaskDelay(pdMS_TO_TICKS(current.delay));
+        // // 停止当前音符
+        // set_Tone(0);
+        i++;
+    }
 }
+
 uint8_t PlayTones(TONE* sound, uint16_t* Schedule)
 {
     if (xTaskGetTickCount() * portTICK_PERIOD_MS - PlayTonesTimer > PlayTonesDelayTime)

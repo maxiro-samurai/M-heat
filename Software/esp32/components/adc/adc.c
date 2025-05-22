@@ -15,8 +15,8 @@ adc_continuous_item ADC = {
     .now_temp_high = 0,
     .set_temp = 0,
     .adc_get_temp_flg = false,
-    .hotbed_max_temp = 0,
-    .adc_max_temp = 250,
+    .hotbed_max_temp = 255,
+    .adc_max_temp = 255,
     .adc_max_temp_auto_flg = true,
 };
 
@@ -94,11 +94,11 @@ static void adc_oneshot_get_voltage(adc_oneshot_unit_handle_t adc1_handle,adc_ca
     
     
     ESP_ERROR_CHECK(adc_cali_raw_to_voltage(adc1_cali_chan0_handle, adc_temp1, &ADC.vol_low));
-    // ESP_LOGI(TAG, "ADC%d Channel[%d] Cali Voltage: %lu mV", ADC_UNIT_1 + 1, ADC_CHANNEL_6, ADC.vol_low);
+    ESP_LOGI(TAG, "ADC%d Channel[%d] Cali Voltage: %lu mV", ADC_UNIT_1 + 1, ADC_CHANNEL_6, ADC.vol_low);
 
 
     ESP_ERROR_CHECK(adc_cali_raw_to_voltage(adc1_cali_chan1_handle, adc_temp2, &ADC.vol_high));
-    // ESP_LOGI(TAG, "ADC%d Channel[%d] Cali Voltage: %lu mV", ADC_UNIT_1 + 1, ADC_CHANNEL_7, ADC.vol_high);
+    ESP_LOGI(TAG, "ADC%d Channel[%d] Cali Voltage: %lu mV", ADC_UNIT_1 + 1, ADC_CHANNEL_7, ADC.vol_high);
 
     
     
@@ -197,43 +197,44 @@ static void adc_temp(adc_continuous_item *adc){
     rt = adc->vol_low * 1000 / ((3300 - adc->vol_low) / 13);
     adc->now_temp = (100 / (log(rt / 10000.0) / 3950 + 1 / 298.15) - 27315) / 100; //转换为温度值
     // ESP_LOGI(TAG, "now_temp is :%u", adc->now_temp);
-    // if (adc->now_temp < 151)
-    //     return;
+    if (adc->now_temp < 100)
+        return;
     // //
 
     // //首次加热到高温时，记录当前温度
-    // if (adc->now_temp < 160 && !adc->adc_error)
-    // {
-    //     // if (pwm.power || adc_max_temp_auto_flg == 0)
-    //     if (adc->adc_max_temp_auto_flg == 0)
-    //         temp_buf = adc->now_temp;
-    // }
+    if (adc->now_temp < 105 && !adc->adc_error)
+    {
+        // if (pwm.power || adc_max_temp_auto_flg == 0)
+        if (PWM_state || adc->adc_max_temp_auto_flg == 0)
+            temp_buf = adc->now_temp;
+    }
 
-    // adc->vol_high = adc->vol_high * 1000 / 21;
+    adc->vol_high = adc->vol_high / 21;
 
-    // buf = adc->vol_high * 1000 / ((3300 - adc->vol_high) / 13.0);
-    // tt = (100 / (log(buf / 10000) / 3950 + 1 / 298.15) - 27315) / 100;
-    // // ESP_LOGI(TAG, "tt is :%u", tt);
+    buf = adc->vol_high * 1000 / ((3300 - adc->vol_high) / 13.0);
+    tt = (100 / (log(buf / 10000) / 3950 + 1 / 298.15) - 27315) / 100;
+    ESP_LOGI(TAG, "tt is :%ld", tt);
+    adc->now_temp_high = tt;
     
-    // // 当前温度减去放大器放大后的温度值，即为ADC误差值
-    // if (temp_buf)
-    //     adc->adc_error = temp_buf - tt;
+    // 当前温度减去放大器放大后的温度值，即为ADC误差值
+    if (temp_buf)
+        adc->adc_error = temp_buf - tt;
 
-    // if (adc->adc_max_temp_auto_flg)
-    // {
-    //     //高于150度时，进行温度补偿
-    //     int16_t tmp = 150 - adc->adc_error;
-    //     //热床最大值减去ADC误差值
-    //     rt = adc->hotbed_max_temp - adc->adc_error;
-    //     int16_t tmp1 = adc->adc_max_temp - rt;
-    //     buf = (double)(tmp1) / (double)(adc->adc_max_temp - tmp);
-    //     tt = (double)tt - ((double)(tt - tmp) * buf);
-    // }
-    // if (adc->adc_max_temp_auto_flg)
-    //     adc->now_temp = tt + adc->adc_error;
-    // else
-    //     adc->now_temp = tt;
-   
+    if (adc->adc_max_temp_auto_flg)
+    {
+        //高于150度时，进行温度补偿
+        int16_t tmp = 100 - adc->adc_error;
+        //热床最大值减去ADC误差值
+        rt = adc->hotbed_max_temp - adc->adc_error;
+        //ADC最大值与热床最大值差值
+        int16_t tmp1 = adc->adc_max_temp - rt;
+        //总误差/高温阶段的量程，高温阶段单位量程内产生的误差
+        buf = (double)(tmp1) / (double)(adc->adc_max_temp - tmp);
+        // 高温矫正
+        tt = (double)tt - ((double)(tt - tmp) * buf);
+    }
+    // 最终温度矫正
+    adc->now_temp = (adc->adc_max_temp_auto_flg) ? (tt + adc->adc_error) : tt;
 }
 
 // void adc_continuous_read_task(void *arg)

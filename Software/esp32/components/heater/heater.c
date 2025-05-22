@@ -275,7 +275,7 @@ uint16_t output_pwm;
 
 
 pid_controller_t pid ;
-
+heater_status_t heater_status = {0}; // 初始化加热器状态结构体
 void Temperature_Control_task(void){
     /*初始化PID控制器，设置初始参数 */
     
@@ -285,7 +285,7 @@ void Temperature_Control_task(void){
     void *pid_event;
     while (1)
     {   
-
+        //定时器设置PID采样时间
         if (xQueueReceive(queue,&pid_event,portMAX_DELAY))
         {
             Temperature_gap = abs(ADC.now_temp-ADC.set_temp);
@@ -294,14 +294,47 @@ void Temperature_Control_task(void){
             if (Temperature_gap > 150) pid_set_sample_time(&pid,sample_time_list[0]);
             else if (Temperature_gap > 50)pid_set_sample_time(&pid,sample_time_list[1]);
             else pid_set_sample_time(&pid,sample_time_list[2]);
-
+            
             //如果处于PID模式
             if (en_pid)
             {
                 output_pwm =  pid_calculate(&pid,ADC.set_temp,ADC.now_temp);
-                // ESP_LOGI(TAG, "PID输出值: %d", output_pwm);
-                heater_output(output_pwm);
+                ESP_LOGI(TAG, "PID输出值: %d", output_pwm);
 
+
+                // 加热工作
+                if (PWM_state && output_pwm>0 && heater_status.error_state == false)
+                {
+                    heater_output(output_pwm);
+                    //首次记录加热时间
+                    if (heater_status.first_work == false)
+                    {
+                        heater_status.heater_timer = xTaskGetTickCount() ;
+                        heater_status.first_work = true;
+                    }
+                    uint32_t now_time = xTaskGetTickCount() ;
+                    //在5分钟内
+                    if (now_time - heater_status.heater_timer > pdMS_TO_TICKS(HEATER_TIMEOUT * 1000) && ADC.now_temp < ADC.set_temp-5)
+                    {
+                        heater_status.error_state = true;
+                        
+                    } 
+
+                }
+                //加热器非正常工作状态
+                else {
+                    output_pwm = 0;
+                    heater_status.first_work = false;//重置加热器计时器
+                    heater_output(output_pwm);
+
+                }
+                
+
+                // else 
+                // {
+                //     // output_pwm = 0;
+                //     // heater_output(0);
+                // }
             }
 
 

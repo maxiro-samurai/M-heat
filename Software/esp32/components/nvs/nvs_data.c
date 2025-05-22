@@ -24,9 +24,11 @@ void nvs_init(void)
  * * @note 该函数用于设置NVS中的参数值
  */
 
-void nvs_set_parameter(const char* key, int32_t value)
+esp_err_t nvs_set_parameter(const char* key, float value)
 {
     //初始化句柄
+    int32_t temp;
+    memcpy(&temp, &value, sizeof(float));
     nvs_handle_t nvs_handle;
     esp_err_t err = nvs_open("storage", NVS_READWRITE, &nvs_handle);
     if (err != ESP_OK) {
@@ -34,7 +36,7 @@ void nvs_set_parameter(const char* key, int32_t value)
     } else {
         printf("Done\n");
     }
-    err = nvs_set_i32(nvs_handle, key, value);
+    err = nvs_set_i32(nvs_handle, key, temp);
     if (err != ESP_OK) {
         ESP_LOGE("NVS", "Error (%s) setting NVS parameter!", esp_err_to_name(err));
     } else {
@@ -45,6 +47,7 @@ void nvs_set_parameter(const char* key, int32_t value)
     printf((err != ESP_OK) ? "Failed!\n" : "Done\n");
     //关闭句柄
     nvs_close(nvs_handle);
+    return err;
 
 }
 /**
@@ -53,8 +56,9 @@ void nvs_set_parameter(const char* key, int32_t value)
  * * @param value 值 
  * * @note 该函数用于获取NVS中的参数值
  */
-void nvs_get_parameter(const char* key, int32_t *value)
+esp_err_t nvs_get_parameter(const char* key, float *value)
 {
+    int32_t temp;
     //初始化句柄
     nvs_handle_t nvs_handle;
     esp_err_t err = nvs_open("storage", NVS_READWRITE, &nvs_handle);
@@ -63,29 +67,15 @@ void nvs_get_parameter(const char* key, int32_t *value)
     } else {
         printf("Done\n");
     }
-    err = nvs_get_i32(nvs_handle, key, value);
+    err = nvs_get_i32(nvs_handle, key, &temp);
     if (err != ESP_OK) {
         ESP_LOGE("NVS", "Error (%s) getting NVS parameter!", esp_err_to_name(err));
     } else {
         ESP_LOGI("NVS", "NVS parameter get successfully");
+        memcpy(value,&temp,sizeof(float));
     }
     //关闭句柄
     nvs_close(nvs_handle);
-}
-// 保存浮点数
-esp_err_t save_float_to_nvs(nvs_handle_t handle, const char *key, float value) {
-    uint32_t temp;
-    memcpy(&temp, &value, sizeof(float)); // 将 float 转换为 uint32_t
-    return nvs_set_u32(handle, key, temp);
-}
-
-// 读取浮点数
-esp_err_t read_float_from_nvs(nvs_handle_t handle, const char *key, float *value) {
-    uint32_t temp;
-    esp_err_t err = nvs_get_u32(handle, key, &temp);
-    if (err == ESP_OK) {
-        memcpy(value, &temp, sizeof(float)); // 将 uint32_t 转回 float
-    }
     return err;
 }
 

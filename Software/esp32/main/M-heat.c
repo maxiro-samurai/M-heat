@@ -26,7 +26,7 @@ void app_main(void) {
   // 等待 Wi-Fi 连接成功
   vTaskDelay(2000 / portTICK_PERIOD_MS);
   
-//   display_qrcode("M-heat");
+
   
   BaseType_t xReturned = xTaskCreate(UI_task, "UI_task", 8192, NULL, 4, NULL);
   if(xReturned == pdPASS) {

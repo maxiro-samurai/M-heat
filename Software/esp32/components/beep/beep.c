@@ -177,8 +177,9 @@ void beep_test(TONE *soundArray) {
             set_Tone(0);
             break;
         }
-        // 设置当前音符和参数
-        set_Note(current.note, current.rp);
+
+        if(current.rp == CMT_NULL) set_Tone(0);
+        else set_Note(current.note, current.rp);
         // 延迟指定的时间
         vTaskDelay(pdMS_TO_TICKS(current.delay));
         // // 停止当前音符

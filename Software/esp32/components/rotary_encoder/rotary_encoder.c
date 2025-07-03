@@ -35,19 +35,19 @@ static bool example_pcnt_on_reach(pcnt_unit_handle_t unit, const pcnt_watch_even
      return (high_task_wakeup == pdTRUE);
  }
  
-//  // 按键中断处理（可选）
-//  static void IRAM_ATTR Key_isr(void* arg) {
-//     static uint32_t last_press = 0;
-//     uint32_t now = xTaskGetTickCountFromISR();
+ // 按键中断处理（可选）
+ static void IRAM_ATTR Key_isr(void* arg) {
+    static uint32_t last_press = 0;
+    uint32_t now = xTaskGetTickCountFromISR();
 
-//     // 消抖处理（200ms内不重复触发）
-//     if (now - last_press < pdMS_TO_TICKS(200)) return;
-//     last_press = now;
+    // 消抖处理（200ms内不重复触发）
+    if (now - last_press < pdMS_TO_TICKS(100)) return;
+    last_press = now;
 
-//     // 发送按键事件到队列
-//     int8_t btn_event = 0;
-//     xQueueSendFromISR(buton_queue, &btn_event, NULL);
-// }
+    // 发送按键事件到队列
+    int8_t btn_event = 0;
+    xQueueSendFromISR(buton_queue, &btn_event, NULL);
+}
 
 
 
@@ -122,10 +122,10 @@ static void Key_init(void)
     };
     ESP_ERROR_CHECK(gpio_config(&io_conf));
     
-    // ESP_LOGI(TAG, "install GPIO interrupt");
-    // buton_queue = xQueueCreate(10, sizeof(int8_t));
-    // ESP_ERROR_CHECK(gpio_install_isr_service(0));
-    // ESP_ERROR_CHECK(gpio_isr_handler_add(EXAMPLE_KEY_GPIO, Key_isr, (void*)EXAMPLE_KEY_GPIO));
+    ESP_LOGI(TAG, "install GPIO interrupt");
+    buton_queue = xQueueCreate(10, sizeof(int8_t));
+    ESP_ERROR_CHECK(gpio_install_isr_service(0));
+    ESP_ERROR_CHECK(gpio_isr_handler_add(EXAMPLE_KEY_GPIO, Key_isr, (void*)EXAMPLE_KEY_GPIO));
     
 
 }
@@ -181,9 +181,19 @@ void encoder_state_detection(rotary_encoder_item_t *encoder) {
 
 void encoder_key_detection(rotary_encoder_item_t *encoder){
 int GPIO_LEVEL ; //读取GPIO电平
-uint32_t current_tick = xTaskGetTickCount() * portTICK_PERIOD_MS;  //获取当前时间
 GPIO_LEVEL = gpio_get_level(EXAMPLE_KEY_GPIO);
-// ESP_LOGI(TAG, "按键按下:%d",GPIO_LEVEL);
+uint32_t current_tick = xTaskGetTickCount() * portTICK_PERIOD_MS;  //获取当前时间
+
+// if (xQueueReceive(buton_queue, &GPIO_LEVEL, 0) == pdTRUE) { 
+//     //读取按键事件
+    
+//     if (GPIO_LEVEL == 0) {
+//         ESP_LOGI(TAG, "按键按下");
+//     } else {
+//         ESP_LOGI(TAG, "按键释放");
+//     }
+// } 
+
     switch (encoder->key_state) // 按键状态机
     {
     case IDLE:

@@ -384,9 +384,6 @@ static uint32_t sleeptimer = 0;
     }
     //正常温度
     else{
-        PWMOutput_Lock = false;
-        PWM_state = true;
-        en_pid = true;
 
         if (output_pwm > 2000)
         {
@@ -490,7 +487,6 @@ void display_qrcode(const char *text) {
     int startX = (128 - size * scale) / 2;
     int startY = (64 - size * scale) / 2;
 
-    oled_clear_buffer();
 
     // 遍历所有模块并绘制
     for (int y = 0; y < size; y++) {
@@ -509,7 +505,12 @@ void display_qrcode(const char *text) {
 
 void qrcode(void){
 
-    display_qrcode("M-HEAT");
+    display_qrcode("https://github.com/maxiro-samurai/M-heat");
+}
+
+void qrcode_quit(void){
+    oled_clear_buffer();
+    oled_send_buffer();
 }
 
 void UI_init(void){
@@ -525,7 +526,8 @@ void UI_init(void){
   astra_push_item_to_list(setting_list_item, wifi_list_item);
   astra_push_item_to_list(setting_list_item, ble_list_item);
   
-  astra_push_item_to_list(setting_list_item,astra_new_slider_item("Light",&bright,10,0,100));
+  astra_push_item_to_list(setting_list_item,astra_new_slider_item("亮度",&bright,10,0,100));
+  astra_push_item_to_list(setting_list_item, astra_new_switch_item("声音",&Volume));
   astra_push_item_to_list(astra_get_root_list(), temp_control_item);
   astra_push_item_to_list(astra_get_root_list(), PID_list_item);
   astra_push_item_to_list(astra_get_root_list(), about_list_item);
@@ -535,7 +537,7 @@ void UI_init(void){
   astra_push_item_to_list(PID_list_item, astra_new_slider_item("Kp", &pid.Kp,5,0,200));
   astra_push_item_to_list(PID_list_item, astra_new_slider_item("Ki", &pid.Ki,1,0,50));
   astra_push_item_to_list(PID_list_item, astra_new_slider_item("Kd", &pid.Kd,1,10,100));
-  astra_push_item_to_list(PID_list_item, astra_new_user_item("Save config",init_save_config,NULL,NULL));//改善
-  astra_push_item_to_list(temp_control_item,astra_new_user_item("Temp plot",init_temp_plot,temp_plot,temp_plot_quit));
-  astra_push_item_to_list(about_list_item, astra_new_user_item("项目地址",NULL,qrcode,NULL));
+  astra_push_item_to_list(PID_list_item, astra_new_user_item("保存配置",init_save_config,NULL,NULL));//改善
+  astra_push_item_to_list(temp_control_item,astra_new_user_item("温度曲线",init_temp_plot,temp_plot,temp_plot_quit));
+  astra_push_item_to_list(about_list_item, astra_new_user_item("项目地址",NULL,qrcode,qrcode_quit));
 }

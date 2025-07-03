@@ -299,7 +299,7 @@ void Temperature_Control_task(void){
             if (en_pid)
             {
                 output_pwm =  pid_calculate(&pid,ADC.set_temp,ADC.now_temp);
-                ESP_LOGI(TAG, "PID输出值: %d", output_pwm);
+                // ESP_LOGI(TAG, "PID输出值: %d", output_pwm);
 
 
                 // 加热工作

@@ -16,15 +16,35 @@
 
 
 
-
+## 未加外壳
 ![IMG_1925](https://github.com/maxiro-samurai/picx-images-hosting/raw/master/IMG_1925.6m44r5idvv.webp)
 
 
 ![IMG_1926](https://github.com/maxiro-samurai/picx-images-hosting/raw/master/IMG_1926.7i0m6slaaa.webp)
 
 
+## 加热板
+加热板使用希尔伯特曲线填充， 希尔伯特曲线是一种能在 2D平面完美填充正方形的曲线，连续且稳定（当细分足够小时，线构成面）而又不可导的曲线。只要恰当选择函数，画出一条连续的参数曲线，当参数 t 在 [0、1 ] 区间取值时，曲线将遍历单位正方形中所有的点，得到一条充满空间的曲线。
 
+阻值计算公式为：$R = \frac{\rho L}{1000W \cdot D}$
 
+ρ为铜的电阻率：ρ=0.0175 $\frac{\Omega\cdot mm^2}{m}$
+
+L为走线长度：单位(m)
+
+W为走线宽度：单位(m)
+
+D为PCB铜厚度：1oz 覆铜板铜箔的厚度是0.035mm
+
+取 L=0.4mm（即单位长度），W=0.2mm，可以估算Hilbert 曲线在不同阶数下等效的PCB电阻。
+本设计中导线电阻约等于6.67 Ω。
+
+加热板使用铝基板打样
+![image](https://github.com/maxiro-samurai/picx-images-hosting/raw/master/image.8l0d42paj0.webp)
+
+## PID参数整定
+
+P值与I值尽量不要太大，这个版本没有风扇，所以降温比较慢，P值和I值过大会导致超调很多并且很慢恢复。
 
 # 记录
 * 2024/9/12   目前正在打板验证，本次提交是创建项目仓库。

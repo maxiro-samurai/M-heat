@@ -22,7 +22,8 @@
 
 ![IMG_1926](https://github.com/maxiro-samurai/picx-images-hosting/raw/master/IMG_1926.7i0m6slaaa.webp)
 
-
+## 整体装配
+![control_board-v20](https://github.com/maxiro-samurai/picx-images-hosting/raw/master/control_board-v20.1vyxfctzbs.webp)
 ## 加热板
 加热板使用希尔伯特曲线填充， 希尔伯特曲线是一种能在 2D平面完美填充正方形的曲线，连续且稳定（当细分足够小时，线构成面）而又不可导的曲线。只要恰当选择函数，画出一条连续的参数曲线，当参数 t 在 [0、1 ] 区间取值时，曲线将遍历单位正方形中所有的点，得到一条充满空间的曲线。
 
@@ -46,7 +47,8 @@ D为PCB铜厚度：1oz 覆铜板铜箔的厚度是0.035mm
 
 P值与I值尽量不要太大，这个版本没有风扇，所以降温比较慢，P值和I值过大会导致超调很多并且很慢恢复。
 
-# 记录
+
+# 开发记录
 * 2024/9/12   目前正在打板验证，本次提交是创建项目仓库。
 
 * 2024/9/14   电源部分设计有问题，DC-DC降压模块稳定工作需要一定压降，TPS5430和MP1584EN输入5V输出必须比5V低。准备更改电源方案，输入转3.3V，3.3V再升压得到5V。

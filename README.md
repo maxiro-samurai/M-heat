@@ -24,6 +24,9 @@
 
 ## 整体装配
 ![control_board-v20](https://github.com/maxiro-samurai/picx-images-hosting/raw/master/control_board-v20.1vyxfctzbs.webp)
+
+
+![IMG_1988](https://github.com/maxiro-samurai/picx-images-hosting/raw/master/IMG_1988.7zqqnklvdv.webp)
 ## 加热板
 加热板使用希尔伯特曲线填充， 希尔伯特曲线是一种能在 2D平面完美填充正方形的曲线，连续且稳定（当细分足够小时，线构成面）而又不可导的曲线。只要恰当选择函数，画出一条连续的参数曲线，当参数 t 在 [0、1 ] 区间取值时，曲线将遍历单位正方形中所有的点，得到一条充满空间的曲线。
 
